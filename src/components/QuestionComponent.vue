@@ -2,7 +2,7 @@
   <div class="container">
     <H2>{{text}}</H2>
     <div class="inputContainer">
-      <input  type="text" v-model="answer" placeholder="Your answer" maxlength="100">
+      <input  type="text" v-model="answer" placeholder="Your answer" maxlength="80">
     </div>
     <button v-on:click="submitAnswer()" v-on:mouseover="hoveringButton = true" @mouseleave="hoveringButton = false" :class="{hovering : hoveringButton}">
       Submit

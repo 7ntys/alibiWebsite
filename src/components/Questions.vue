@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <question-component v-on:answerSubmitted="receiveAnswer($event)" :text="questionsArray[index]"></question-component>
+    <question-component v-if="index < 5" v-on:answerSubmitted="receiveAnswer($event)" :text="questionsArray[index]"></question-component>
   </div>
 </template>
 
@@ -23,6 +23,7 @@ export default {
   methods: {
     receiveAnswer(event) {
       console.log("Answer received : " + event)
+      console.log("index : "+this.index)
       this.answers+=event
       if (this.index < this.questionsArray.length - 1) {
         this.index += 1

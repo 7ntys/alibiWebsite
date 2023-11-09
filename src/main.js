@@ -6,13 +6,16 @@ import Lobby from "@/components/Lobby";
 import Alibi from "@/components/Alibi";
 import Questions from "@/components/Questions";
 import ComparaisonView from "@/components/ComparaisonView";
+import Podium from "@/components/Podium.vue";
 //Use vue router to create routes :
 const routes = [
     { path: '/', component: Profile,name:'Profile' },
     { path: '/lobby', component: Lobby,name:'Lobby' },
     {path: '/alibi/:timerPassed',component: Alibi,name:'Alibi',props:true},
     {path: '/questions',component: Questions,name:'Questions'},
-    {path: '/comparaison',component: ComparaisonView,name:'ComparaisonView'}
+    {path: '/comparaison',component: ComparaisonView,name:'ComparaisonView'},
+    {path: '/podium',component:Podium,name:'Podium'},
+    {path: '/:pathMatch(.*)*',name:'not-found',redirect:'/'}
 ]
 const router = createRouter({
     history: createWebHistory(),

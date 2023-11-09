@@ -1,58 +1,95 @@
 <template>
   <div class="container">
-    <div class="component" v-for="item in team1" :key="item">
-      <h2 class="question">{{item.questions}}</h2>
-      <p class="answer0">{{item.answers0}}</p>
-      <p class="answer1">{{item.answers1}}</p>
-      <div v-if="item.voted == null">
-        <button @click="vote(0)"><img src="../assets/Dislike.png"></button>
-        <button @click="vote(1)"><img src="../assets/Like.png"></button>
-      </div>
+    <div class="wrapper" v-if="turn === 0">
+      <ComparaisonCard v-for="item in team1" :key="item" :item="item"/>
     </div>
+    <div class="wrapper" v-else>
+      <ComparaisonCard v-for="item in team2" :key="item" :item="item"/>
+    </div>
+    <button class="submit" @click="submit()">
+      Done
+    </button>
   </div>
 </template>
 
 <script>
+import ComparaisonCard from "@/components/ComparaisonCard.vue";
+
 export default {
   name:"ComparaisonView",
+  components: {ComparaisonCard},
   mounted() {
     //TODO : Retrieve all answers and add a listener on it
   },
   data(){
     return{
+      turn : 0,
       team1 : [
-          { questions : "What was the name of your friend",answers0: "John",answers1: "Demacia"},
-          { questions : "Where was the hidden treasure",answers0: "Paris",answers1: "Paris"},
-          { questions : "How did you manage to escape the jail",answers0: "by the window",answers1: "using the window"}],
+          { questions : "What was the name of your friend",answers0: "John",answers1: "Demacia",vote:3,firstPlayer:"Julien",secondPlayer:"Mathieu"},
+          { questions : "Where was the hidden treasure",answers0: "Paris",answers1: "Paris",vote:3,firstPlayer:"Julien",secondPlayer:"Mathieu"},
+          { questions : "How did you manage to escape the jail",answers0: "by the window",answers1: "using the window",vote:3,firstPlayer:"Julien",secondPlayer:"Mathieu"}],
+      team2 : [
+          { questions : "Where did you go",answers0: "The Bar",answers1: "To the bar",vote:3,firstPlayer:"Damien",secondPlayer:"Vianney"},
+          { questions : "Where was the hidden treasure",answers0: "Paris",answers1: "Paris",vote:3,firstPlayer:"Damien",secondPlayer:"Vianney"},
+          { questions : "How did you manage to escape the jail",answers0: "by the window",answers1: "using the window",vote:3,firstPlayer:"Damien",secondPlayer:"Vianney"}],
     }
   },
   methods:{
     retrieveAnswers(){
       //TODO : Retrieve all answers
     },
-    vote(){
-
+    vote(value,question){
+      if (value === question.vote) {
+        console.log("reset")
+        question.vote = 3
+      }
+      else {
+        question.vote = value
+        console.log(question)
+      }
+    },
+    submit(){
+      //TODO : Verify that all questions have been rated, then go send the result to the database and go to the next view
+      if (this.turn === 0){
+        this.turn++
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      else{
+        this.$router.push({name:'Podium'})
+      }
     }
   }
 }
 </script>
 
 <style scoped>
-.component{
-  background-color : #2c3e50;
-  color: white;
-  width: 50%;
+.answer img{
   margin: 0 auto;
+  width: 20%;
+}
+button {
+  background: #233140;
+  border: none;
+  font-size: 40px;
+  box-shadow: black 0 0 5px;
+  margin: 15px 10px 20px 10px;
+  padding: 0px 10px;
   border-radius: 20px;
+  cursor: pointer;
+}
+.submit{
+  width: 40%;
+  height: 150px;
+  background: #0b670b;
+  color: white;
   box-shadow: black 0 0 10px;
-}
-.question{
+  margin: 40px auto;
   font-weight: bold;
-  border-bottom: grey 1px solid;
-  padding: 10px;
+  font-size: 45px;
+  transition: 0.2s;
 }
-.answer0 , .answer1{
-  padding-bottom: 20px;
-  border-bottom: #371d10 1px solid;
+.submit:hover{
+  transform: scale(1.1);
+  transition: 0.2s;
 }
 </style>
