@@ -7,6 +7,7 @@ import Alibi from "@/components/Alibi";
 import Questions from "@/components/Questions";
 import ComparaisonView from "@/components/ComparaisonView";
 import Podium from "@/components/Podium.vue";
+
 //Use vue router to create routes :
 const routes = [
     { path: '/', component: Profile,name:'Profile' },
@@ -22,3 +23,6 @@ const router = createRouter({
     routes,
 })
 createApp(App).use(router).mount('#app')
+
+
+  

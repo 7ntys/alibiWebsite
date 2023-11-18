@@ -7,14 +7,14 @@
       </div>
       <form>
         <div class="input-container">
-          <input v-model="username" type="text" placeholder="Username" maxlength="15">
+          <input  id="pseudonym" v-model="username" type="text" placeholder="Username" maxlength="15">
           <label :class="{'overflow':username.length === 15}">{{username.length}}/15</label>
         </div>
         <div class="input-container">
           <input v-model="gameCode" type="text" placeholder="Game code (if joining)" maxlength="6">
         </div>
         <button :class="{'greyButton':!showJoin}" @click="joinGame">Join Game</button>
-        <button :class="{'greyButton':username.length < 5}" @click="createGame">Create Game</button>
+        <button :class="{'greyButton':username.length < 5}" @click="create_game()">Start game</button>
       </form>
     </div>
     <div class="dropdown" @click="ToggleRules()">
@@ -28,8 +28,12 @@
     </div>
   </div>
 </template>
-
 <script>
+// eslint-disable-next-line no-unused-vars
+/* eslint-disable */
+
+import {start_game} from "../../backend/call.js";
+import {createPlayer,createGameDocument} from "../crude.js";
 import PictureCarousel from "@/components/PictureCarousel";
 import RulesComponent from "@/components/Rules";
 export default {
@@ -45,14 +49,29 @@ export default {
     }
   },
   methods:{
-    createGame(){
-      console.log("hey")
+
+
+    async create_game() {
+      try {
+        console.log("T");
+        await createGameDocument();
+        console.log('Player created');
+        // Additional logic after creating the player
+      } catch (error) {
+        console.error(error);
+      }
     },
-    joinGame(){
-      console.log("hey")
-      /*Go to /lobby url*/
-      this.$router.push({name:'Lobby'})
+    async joinGame() {
+      try {
+        console.log("T");
+        await createPlayer();
+        console.log('Player created');
+        // Additional logic after creating the player
+      } catch (error) {
+        console.error(error);
+      }
     },
+
     ToggleRules(){
       if (this.showRules === false){
         this.dropArrow = require("../assets/Arrow Up.png")
@@ -69,6 +88,7 @@ export default {
     },
   }
 }
+
 </script>
 
 <style scoped>
