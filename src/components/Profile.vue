@@ -8,16 +8,16 @@
       <form>
         <div class="input-container">
           <input v-model="username" type="text" placeholder="Username" maxlength="15">
-          <label :class="{'overflow':username.length === 15}">{{username.length}}/15</label>
+          <label :class="{'overflow':this.username.length === 15}">{{username.length}}/15</label>
         </div>
         <div class="input-container">
-          <input v-model="gameCode" type="text" placeholder="Game code (if joining)" maxlength="6">
+          <input v-model="code" type="text" placeholder="Game code (if joining)" maxlength="6">
         </div>
-        <button :class="{'greyButton':!showJoin}" @click="joinGame">Join Game</button>
-        <button :class="{'greyButton':username.length < 5}" @click="createGame">Create Game</button>
+        <button :class="{'greyButton':!this.showJoin}" @click="joinGame">Join Game</button>
+        <button :class="{'greyButton':!this.showCreate}" @click="createGame">Create Game</button>
       </form>
     </div>
-    <div class="dropdown" @click="ToggleRules()">
+    <div class="dropdown" @click="ToggleRules">
       <h2>Rules</h2>
       <img :src="dropArrow" alt="dropdown arrow">
       <Transition name="fade">
@@ -35,23 +35,34 @@ import RulesComponent from "@/components/Rules";
 export default {
   name: "ProfileComponent",
   components: {RulesComponent, PictureCarousel},
+  props:["gameCode"],
   data(){
     return{
       username:"",
-      gameCode:"",
+      code: this.gameCode,
       dropArrow: require("../assets/Arrow Down.png"),
       showRules : false,
       profilePictureIndex : 0,
     }
   },
   methods:{
-    createGame(){
-      console.log("hey")
+    createGame(event){
+      event.preventDefault()
+      if (this.showCreate) {
+        //Generate a random number with 6 digits :
+        this.code = Math.floor(100000 + Math.random() * 900000);
+        //Write gameCode in localstorage under the name : "gameCode"
+        localStorage.setItem("gameCode", this.code)
+        this.$router.push({name: 'Lobby'})
+      }
     },
-    joinGame(){
+    joinGame(event){
+      event.preventDefault()
       console.log("hey")
       /*Go to /lobby url*/
-      this.$router.push({name:'Lobby'})
+      if (this.showCreate && this.showJoin) {
+        this.$router.push({name: 'Lobby'})
+      }
     },
     ToggleRules(){
       if (this.showRules === false){
@@ -61,12 +72,23 @@ export default {
         this.dropArrow = require("../assets/Arrow Down.png")
         this.showRules = false;
       }
+    },
+    isMobile(){
+      return (screen.width < 760)
     }
   },
   computed:{
-    showJoin(){
-      return this.gameCode.length == 6 && this.username.length >= 5;
+    showJoin: function (){
+      return this.gameCode.length === 6 && this.showCreate;
     },
+    showCreate : function (){
+      return this.username.length >= 5;
+    }
+  },
+  mounted() {
+    if (this.isMobile()) {
+      this.ToggleRules()
+    }
   }
 }
 </script>
@@ -183,4 +205,47 @@ button{
   width: 50%;
   margin: 0 auto;
 }
+@media only screen and (max-width: 600px) {
+  .thing{
+    width: 100%;
+  }
+  .containerActive{
+    border-radius: 20px;
+  }
+  .carouselContainer{
+    width: 100%;
+  }
+  input[type="text"]{
+    width: 80%;
+  }
+  button{
+    width: 80%;
+  }
+  .dropdown{
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow-y: scroll;
+    border-radius: 20px;
+    margin-top: 10px;
+  }
+  .dropdown img{
+    display: none;
+  }
+  .container{
+    border-radius: 20px;
+  }
+  button{
+    margin: 10px auto;
+  }
+  .overflow{
+    display: none;
+  }
+  .input-container label{
+    display: none;
+  }
+}
+
 </style>

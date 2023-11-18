@@ -80,4 +80,9 @@ p{
   font-size: 20px;
   text-align: justify;
 }
+@media only screen and (max-width: 600px) {
+  .container{
+    width: 100%;
+  }
+}
 </style>

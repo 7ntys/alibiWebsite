@@ -4,7 +4,7 @@
       <GameOptions></GameOptions>
     </div>
     <div class="playerProfile">
-      <PlayerProfile v-for="player in players" :key="player.name" :name="player.name" :pictureIndex="player.pictureIndex"></PlayerProfile>
+      <PlayerProfile v-for="player in players" :key="player.name" :playerGiven="player"></PlayerProfile>
     </div>
   </div>
 </template>
@@ -16,6 +16,7 @@ class Player {
   constructor(name, pictureIndex) {
     this.name = name;
     this.pictureIndex = pictureIndex;
+    this.team = 0;
   }
 }
 
@@ -44,8 +45,6 @@ export default {
       this.players.push(new Player("Player2",1))
       this.players.push(new Player("Player3",3))
       this.players.push(new Player("Player4",2))
-      this.players.push(new Player("Player5",1))
-      this.players.push(new Player("Player6",1))
     }
   }
 }
@@ -74,10 +73,18 @@ export default {
   box-shadow: black 0 0 10px;
 }
 .playerProfile :hover{
-  background-color: darkred;
   border-radius: 20px;
   /*Zoom*/
   transform: scale(1.1);
+}
+@media only screen and (max-width: 600px) {
+  .container{
+    width: 100%;
+    margin: 0 auto;
+  }
+  .playerProfile{
+    grid-template-columns: 1fr;
+  }
 }
 
 </style>

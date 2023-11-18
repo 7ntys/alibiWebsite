@@ -92,4 +92,9 @@ button {
   transform: scale(1.1);
   transition: 0.2s;
 }
+@media only screen and (max-width: 600px) {
+  .submit{
+    width: 60%;
+  }
+}
 </style>
