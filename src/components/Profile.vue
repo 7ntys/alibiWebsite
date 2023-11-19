@@ -32,8 +32,7 @@
 // eslint-disable-next-line no-unused-vars
 /* eslint-disable */
 
-import {start_game} from "../../backend/call.js";
-import {createPlayer,createGameDocument} from "../crude.js";
+import {getPlayerById,startGame,getPlayerIdFromSessionStorage,setPlayerIdFromSessionStorage} from "../crude.js";
 import PictureCarousel from "@/components/PictureCarousel";
 import RulesComponent from "@/components/Rules";
 export default {
@@ -52,20 +51,31 @@ export default {
 
 
     async create_game() {
+      const usernameInput = document.getElementById("pseudonym");
+      const username = usernameInput.value;
+      if (username.trim() === "") {
+      alert("Please enter a pseudonym.");
+    } else {
       try {
-        console.log("T");
-        await createGameDocument();
-        console.log('Player created');
+        console.log("username : " + username);
+        const playerId = getPlayerIdFromSessionStorage();
+        console.log("player id before : "+playerId);
+        playerId = await startGame(username,playerId);
+        console.log("playerId : " + playerId);
+        setPlayerIdFromSessionStorage(playerId); //Session storage ne marche pas du tout
+        console.log("playerId storage : " + getPlayerIdFromSessionStorage());
+        console.log('Game creatd');
         // Additional logic after creating the player
       } catch (error) {
         console.error(error);
       }
-    },
+    }},
     async joinGame() {
       try {
         console.log("T");
-        await createPlayer();
-        console.log('Player created');
+        console.log("Before calling getPlayerById");
+        await getPlayerById("yvvvEhGZ9JSJ7gkUKFcd");
+        console.log('Test');
         // Additional logic after creating the player
       } catch (error) {
         console.error(error);

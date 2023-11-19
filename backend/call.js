@@ -30,115 +30,14 @@
 //import "firebase/firestore";
 
   
-// async function start_game() {
-//   // Retrieve pseudonym information
-//   const pseudonymInput = document.getElementById("pseudonym");
-//   const enteredPseudonym = pseudonymInput.value;
-
-//   if (enteredPseudonym.trim() === "") {
-//     alert("Please enter a pseudonym.");
-//   } else {
-//     try {
-//       // Perform further processing with the entered pseudonym
-//       console.log("Entered pseudonym:", enteredPseudonym);
-      
-//       const playerId = await initializePlayerId(enteredPseudonym);
-
-//       console.log("Initialized player ID:", playerId);
-//       console.log("Result:", getPlayerIdFromSessionStorage());
-
-//       const gameId = await createGameDocument(db);
-
-//       console.log('Game ID:', gameId);
-//       console.log('Player ID:', playerId);
-
-//       await addPlayerToGame(db, gameId, playerId);
-
-//       console.log("Everything is fine");
-//       // window.location.href = "lobby.html" + '?i=' + gameId;
-//     } catch (error) {
-//       console.error(error);
-//     }
-//   }
-// }
-  
 
 
 
-// function setPlayerIdSessionStorage(playerId) {
-//   sessionStorage.setItem('player_id', playerId);
-// }
 
-// function getPlayerIdFromSessionStorage() {
-//   return sessionStorage.getItem('player_id');
-// }
 
-// async function initializePlayerId(enteredPseudonym) {
-//   let playerId = getPlayerIdFromSessionStorage();
 
-//   if (!playerId) {
-//     try {
-//       // Player ID doesn't exist
-//       const newPlayerId = await createPlayerDocument(db, enteredPseudonym, 0);
 
-//       playerId = newPlayerId;
 
-//       // Player document created successfully
-//       console.log('Player document created with ID:', playerId);
-//       setPlayerIdSessionStorage(playerId);
-
-//       console.log("Player ID doesn't exist; here is the new ID:", playerId);
-
-//       return playerId;
-//     } catch (error) {
-//       // Handle error
-//       console.error(error);
-//       throw error;
-//     }
-//   } else {
-//     console.log("Player ID exists; here is the ID:", playerId);
-//     return playerId;
-//   }
-// }
-
-// async function addPlayerToGame(db, gameId, playerId, callback) {
-//   try {
-//     const gamesCollection = firebase.collection(db, 'games');
-//     const gameRef = firebase.doc(gamesCollection, gameId);
-
-//     // Fetch the game document
-//     const docSnapshot = await firebase.getDoc(gameRef);
-
-//     if (docSnapshot.exists()) {
-//       const gameData = docSnapshot.data();
-
-//       // Check if player_list exists or initialize it
-//       if (!gameData.player_list) {
-//         gameData.player_list = [];
-//       }
-
-//       // Check if the player is not already in the list and the list is not full
-//       if (!gameData.player_list.includes(playerId) && gameData.player_list.length < 4) {
-//         gameData.player_list.push(playerId);
-
-//         // Update the game document with the modified player_list
-//         await firebase.updateDoc(gameRef, { player_list: gameData.player_list });
-
-//         console.log('Player added to the list successfully.');
-//         callback(null);
-//       } else {
-//         console.log('Player already in the list or list is full.');
-//         callback(null);
-//       }
-//     } else {
-//       console.log('Game document not found.');
-//       callback(null);
-//     }
-//   } catch (error) {
-//     console.error('Error fetching or updating game document:', error);
-//     callback(error, null);
-//   }
-// }
 
 
 
