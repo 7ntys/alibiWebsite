@@ -32,7 +32,7 @@
 // eslint-disable-next-line no-unused-vars
 /* eslint-disable */
 
-import {getPlayerById,startGame,getPlayerIdFromSessionStorage,setPlayerIdFromSessionStorage} from "../crude.js";
+import {getPlayerById,startGame,getPlayerIdFromSessionStorage,setPlayerIdFromSessionStorage,generateId} from "../crude.js";
 import PictureCarousel from "@/components/PictureCarousel";
 import RulesComponent from "@/components/Rules";
 export default {
@@ -58,18 +58,21 @@ export default {
     } else {
       try {
         console.log("username : " + username);
-        const playerId = getPlayerIdFromSessionStorage();
-        console.log("player id before : "+playerId);
-        playerId = await startGame(username,playerId);
-        console.log("playerId : " + playerId);
-        setPlayerIdFromSessionStorage(playerId); //Session storage ne marche pas du tout
+        let temp = getPlayerIdFromSessionStorage();
+        if(temp == null){temp = generateId();}
+        const playerId = temp;
+        console.log("player id init by function after : "+playerId);
+        setPlayerIdFromSessionStorage(playerId); 
         console.log("playerId storage : " + getPlayerIdFromSessionStorage());
+        await startGame(username,playerId);
+        console.log("playerId : " + playerId);
         console.log('Game creatd');
         // Additional logic after creating the player
       } catch (error) {
         console.error(error);
       }
     }},
+
     async joinGame() {
       try {
         console.log("T");

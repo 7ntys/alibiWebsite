@@ -30,14 +30,13 @@ const db = getFirestore(fire_app);
 async function startGame(enteredPseudonym,playerId) { //works
 
       try {
-        // Perform further processing with the entered pseudonym
+
         console.log("Entered pseudonym:", enteredPseudonym);
-        
-        playerId = await initializePlayerId(enteredPseudonym,playerId);
+        console.log("Player ID SVP : "+playerId);
+        await initializePlayerId(enteredPseudonym,playerId);
   
         console.log("Initialized player ID:", playerId);
-        // console.log("Result:", getPlayerIdFromSessionStorage());
-  
+        
         const gameId = await createGameDocument();
   
         console.log('Game ID:', gameId);
@@ -46,32 +45,33 @@ async function startGame(enteredPseudonym,playerId) { //works
         await addPlayerToGame(gameId, playerId);
   
         console.log("Everything is fine");
-        return playerId;
-      } catch (error) {
+            } catch (error) { 
         console.error(error);
       }
-    }
+}
     
-async function createPlayerDocument(pseudo, team) { //works
-    try {
-      const documentRef = firebase.collection(db, "active_player");
-      const newDocRef = firebase.doc(documentRef);
-      
+async function createPlayerDocument(pseudo, team, playerId) {
+      try {
+        // Assuming 'db' is your Firestore database reference
+        const collectionRef = firebase.collection(db, "active_player");
+        const documentRef = firebase.doc(collectionRef, playerId);
+    
         const playerData = {
           pseudo: pseudo,
           team: team
         };
-      
-      await firebase.setDoc(newDocRef, playerData);
-      
-      const playerId = newDocRef.id;
-      console.log('Player document created successfully. Player ID:', playerId);
-     return playerId;
-    } catch (error) {
-      console.error('Error creating player document:', error);
-    //   callback('Error creating player document: ' + error, null, null);
-    }
-  }
+    
+        await firebase.setDoc(documentRef, playerData);
+    
+        console.log('Player document created successfully. Player ID:', playerId);
+        return playerId;
+      } catch (error) {
+        console.error('Error creating player document:', error);
+        // Handle the error appropriately, e.g., throw an error or return an error code
+        throw error;
+      }
+}
+    
 async function createGameDocument() { //works
     try {
       const documentRef = firebase.collection(db, "games");
@@ -91,7 +91,7 @@ async function createGameDocument() { //works
       console.error('Error creating game document:', error);
     //   callback('Error creating game document: ' + error, null, null);
     }
-  }
+}
 
 function generatePlayerId() {
     createPlayerDocument(db, "None", 0, (error, playerId) => {
@@ -104,7 +104,7 @@ function generatePlayerId() {
         console.log('Player document created with ID:', playerId);
       }
     });
-  }
+}
 
 async function getPlayerById(playerId) { //works
     try {
@@ -165,21 +165,16 @@ async function addPlayerToGame(gameId, playerId) { //works
       console.error('Error fetching or updating game document:', error);
     //   callback(error, null);
     }
-  }
+}
 
 async function initializePlayerId(enteredPseudonym,playerId) { //works
   
-    if (!playerId) {
       try {
-        // Player ID doesn't exist
-        const newPlayerId = await createPlayerDocument(enteredPseudonym, 0);
+        await createPlayerDocument(enteredPseudonym, 0,playerId);
   
-        playerId = newPlayerId;
   
         // Player document created successfully
         console.log('Player document created with ID:', playerId);
-  
-        console.log("Player ID doesn't exist; here is the new ID:", playerId);
   
         return playerId;
       } catch (error) {
@@ -187,11 +182,7 @@ async function initializePlayerId(enteredPseudonym,playerId) { //works
         console.error(error);
         throw error;
       }
-    } else {
-      console.log("Player ID exists; here is the ID:", playerId);
-      return playerId;
-    }
-  }  
+}
 
 
 
@@ -214,7 +205,7 @@ app.post('/startGame', async (req, res) => {
 app.post('/createPlayer', async (req, res) => {
     try {
       const { pseudo, team } = req.body;
-      const playerId = await createPlayerDocument(pseudo, team);
+      await createPlayerDocument(pseudo, team,playerId);
       res.json({ playerId });
     } catch (error) {
       console.error('Error:', error);
