@@ -12,6 +12,9 @@ export default {
   computed:{
     picture(){
       return require("../assets/profilePicture/picture"+this.player.pictureIndex+".png")
+    },
+    debouncedCallDb : function(){
+      return this.debounce(this.CallDb,1000)
     }
   },
   data(){
@@ -23,7 +26,19 @@ export default {
     changeTeam(){
       console.log("something")
       this.player.team = this.player.team === 1 ? 2 : this.player.team === 2 ? 1 : 1
-      //TODO : update to Db after change
+      //update to Db after change only if user didn't click for 1 second :
+      this.debouncedCallDb()
+    },
+    debounce(func, delay){
+      let timer;
+      return function () {
+        clearTimeout(timer);
+        timer = setTimeout(func, delay);
+      };
+    },
+    CallDb(){
+      //TODO : update to Db after change only if user didn't click for 1 second :
+      console.log("update to db")
     }
   }
 }

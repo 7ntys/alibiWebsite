@@ -69,6 +69,8 @@ h4,h2 {
   border-radius: 20px;
   color : white;
   box-shadow: black 0 0 10px;
+  margin-top: 60px;
+  padding: 20px;
 }
 span{
   color: red;

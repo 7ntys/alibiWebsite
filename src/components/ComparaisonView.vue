@@ -63,6 +63,9 @@ export default {
 </script>
 
 <style scoped>
+.container{
+  margin-top: 60px;
+}
 .answer img{
   margin: 0 auto;
   width: 20%;

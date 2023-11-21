@@ -71,6 +71,7 @@ export default {
   border-radius: 20px;
   max-height: 800px;
   box-shadow: black 0 0 10px;
+  margin-top: 60px;
 }
 .playerProfile :hover{
   border-radius: 20px;

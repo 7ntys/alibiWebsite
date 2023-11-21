@@ -30,10 +30,13 @@ export default {
     decrement(){if(this.timer > 10){this.timer -=10}},
     startGame(){
       //Pass the timer to the Alibi Component :
-      this.$router.push({name:'Alibi',params:{timerPassed:this.timer}})
+      if (this.checkTeam()) {
+        this.$router.push({name: 'Alibi', params: {timerPassed: this.timer}})
+      }else{
+        alert("Teams are not balanced")
+      }
     },
     shareGame(){
-      //retrieve gameCode from localstorage :
       //Copy to clipboard an url
       navigator.clipboard.writeText("http://localhost:8080/"+this.gameCode).then(function() {
         //Show the player it has been copied succesfully
@@ -41,6 +44,10 @@ export default {
       }, function() {
         console.error("Unable to write to clipboard. :-(");
       });
+    },
+    checkTeam(){
+      //TODO : Check if the the team are well balanced :
+      return true
     }
   },
 }
@@ -65,6 +72,9 @@ h2{margin-bottom: 0;}
   font-weight: bold;
   box-shadow: black 0 0 10px;
 }
+p{
+  user-select: none;
+}
 button{
   width: 20%;
   border-radius: 20px;
@@ -75,6 +85,7 @@ button{
   font-size: 20px;
   border: solid rgba(149,62,64,1) 2px;
   box-shadow: black 0 0 10px;
+  cursor: pointer;
 }
 .rightButton{
   border: 1px solid #fff;

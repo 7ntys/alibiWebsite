@@ -57,13 +57,20 @@ export default {
 </script>
 
 <style scoped>
+*{
+  transform: none;
+  :hover{
+    transform: none;
+  }
+}
 .container{
   display: grid;
-  background: #2c3e50;
+  background: rgba(44,62,80,1);
   grid-template-columns: 0.5fr 0.5fr 4fr;
   border-radius: 20px;
   margin: 10px;
   box-shadow: black 0 0 10px;
+
 }
 p{
   color: white;
