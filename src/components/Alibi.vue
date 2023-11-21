@@ -69,6 +69,8 @@ h4,h2 {
   border-radius: 20px;
   color : white;
   box-shadow: black 0 0 10px;
+  margin-top: 60px;
+  padding: 20px;
 }
 span{
   color: red;
@@ -79,5 +81,10 @@ p{
   line-height: 1.5;
   font-size: 20px;
   text-align: justify;
+}
+@media only screen and (max-width: 600px) {
+  .container{
+    width: 100%;
+  }
 }
 </style>
