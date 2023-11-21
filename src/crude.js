@@ -1,11 +1,24 @@
 import axios from 'axios';
+//Note : desfois l'ordre de placement des fonctions des crudes changent le fonctionnement du programme 
 
 
-
+export async function getPlayerIDList(gameId) {
+  try {
+      const response = await axios.get(`http://localhost:4002/getPlayerIDList/${gameId}`);
+      console.log('Response Status:', response.status);
+      console.log('Response Data:', response.data);
+      const playerInfoArray = response.data.playerInfoArray;
+      console.log('Player Info Array:', playerInfoArray);
+      return playerInfoArray;
+  } catch (error) {
+      console.error('Error fetching player ID list:', error);
+      throw error;
+  }
+}
 
 export async function createPlayer(pseudo,team,playerId) {
     try {
-      const response = await axios.post('http://localhost:4001/createPlayer', {
+      const response = await axios.post('http://localhost:4002/createPlayer', {
         pseudo: pseudo,
         team: team,
         playerId : playerId
@@ -15,11 +28,11 @@ export async function createPlayer(pseudo,team,playerId) {
       console.error(error);
       throw error;
     }
-  }
+}
 
 export async function createGameDocument() {
     try {
-      const response = await axios.post('http://localhost:4001/createGameDocument');
+      const response = await axios.post('http://localhost:4002/createGameDocument');
       console.log(response.data);
     } catch (error) {
       console.error(error);
@@ -29,8 +42,9 @@ export async function createGameDocument() {
 
 export async function getPlayerById(playerId) {
     try {
-        const response = await axios.get(`http://localhost:4001/getPlayerById/${playerId}`);
-        console.log(response.data);  
+        const response = await axios.get(`http://localhost:4002/getPlayerById/${playerId}`);
+        console.log("2443");
+        console.log("response data"+response.data);  
         return response.data;
     } catch (error) {
         console.error('Error:', error);
@@ -40,7 +54,7 @@ export async function getPlayerById(playerId) {
 
 export async function addPlayerToGame(gameId, playerId) {
     try {
-        const response = await axios.post(`http://localhost:4001/addPlayerToGame/${gameId}/${playerId}`);
+        const response = await axios.post(`http://localhost:4002/addPlayerToGame/${gameId}/${playerId}`);
         console.log(response.data);  
         return response.data;
     } catch (error) {
@@ -51,7 +65,7 @@ export async function addPlayerToGame(gameId, playerId) {
 
 export async function startGame(enteredPseudonym, playerId) {
     try {
-        const response = await axios.post('http://localhost:4001/startGame', { enteredPseudonym, playerId });
+        const response = await axios.post('http://localhost:4002/startGame', { enteredPseudonym, playerId });
         console.log(response.data);
         return response.data;
     } catch (error) {

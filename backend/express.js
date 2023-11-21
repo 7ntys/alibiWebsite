@@ -3,7 +3,7 @@ const cors = require('cors')
 const app=express();
 app.use(cors());
 app.use(express.json());
-const port = 4001;
+const port = 4002;
 
 //Firebase init =>//
 const firebase = require('firebase/firestore');
@@ -93,18 +93,18 @@ async function createGameDocument() { //works
     }
 }
 
-function generatePlayerId() {
-    createPlayerDocument(db, "None", 0, (error, playerId) => {
-      if (error) {
-        // Handle error
-        console.error(error);
-      } else {
-        // playerId = playerId;
-        // Player document created successfully
-        console.log('Player document created with ID:', playerId);
-      }
-    });
-}
+// function generatePlayerId() {
+//     createPlayerDocument(db, "None", 0, (error, playerId) => {
+//       if (error) {
+//         // Handle error
+//         console.error(error);
+//       } else {
+//         // playerId = playerId;
+//         // Player document created successfully
+//         console.log('Player document created with ID:', playerId);
+//       }
+//     });
+// }
 
 async function getPlayerById(playerId) { //works
     try {
@@ -184,7 +184,51 @@ async function initializePlayerId(enteredPseudonym,playerId) { //works
       }
 }
 
+async function getPlayerIDList(gameId) {
+  console.log("Reached this point 3");
+  try {
+    console.log("Reached this point 2");
+    const gamesCollection = firebase.collection(db, 'games');
+    const gameRef = firebase.doc(gamesCollection, gameId);
 
+    const doc = await firebase.getDoc(gameRef);
+    console.log("Reached this point");
+
+    if (doc.exists) {
+      const gameData = doc.data();
+      const playerIds = gameData.player_list || [];
+
+      const playerInfoArray = [];
+
+      for (const playerId of playerIds) {
+        const playersCollection = firebase.collection(db, 'active_player');
+        const playerRef = firebase.doc(playersCollection,playerId);
+        const playerDoc = await firebase.getDoc(playerRef);
+
+        if (playerDoc.exists) {
+          const playerData = playerDoc.data();
+          const playerInfo = {
+            playerId: playerId,
+            pseudo: playerData.pseudo || '',
+            team: playerData.team || 0
+          };
+          playerInfoArray.push(playerInfo);
+        }
+        
+      }
+      console.log ("playerInfoArray : "+playerInfoArray[0].playerId);
+      return playerInfoArray;
+
+    
+    } else {
+      console.log('Game document not found.');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching game document:', error);
+    return null;
+  }
+}
 
 //End of Firebase logic//
 
@@ -270,7 +314,23 @@ app.post('/addPlayerToGame/:gameId/:playerId', async (req, res) => {
     }
 });
 
+app.get('/getPlayerIDList/:gameId', async (req, res) => {
+  try {
+    console.log("Reached this point 1");
+    const gameId = req.params.gameId;
+    console.log('Received request for gameId:', gameId);
+    const playerInfoArray = await getPlayerIDList(gameId);
+    console.log("1jj" + playerInfoArray[0].playerId); //worked
 
+    res.send(playerInfoArray);
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
+//Api call 
 
 
 

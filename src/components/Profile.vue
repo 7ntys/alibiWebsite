@@ -32,7 +32,7 @@
 // eslint-disable-next-line no-unused-vars
 /* eslint-disable */
 
-import {getPlayerById,startGame,getPlayerIdFromSessionStorage,setPlayerIdFromSessionStorage,generateId} from "../crude.js";
+import {startGame,getPlayerIdFromSessionStorage,setPlayerIdFromSessionStorage,generateId, getPlayerIDList} from "../crude.js";
 import PictureCarousel from "@/components/PictureCarousel";
 import RulesComponent from "@/components/Rules";
 export default {
@@ -74,16 +74,25 @@ export default {
     }},
 
     async joinGame() {
-      try {
-        console.log("T");
-        console.log("Before calling getPlayerById");
-        await getPlayerById("yvvvEhGZ9JSJ7gkUKFcd");
-        console.log('Test');
-        // Additional logic after creating the player
-      } catch (error) {
-        console.error(error);
-      }
-    },
+  try {
+    console.log("Before calling getPlayerIDList");
+    let playerList = await getPlayerIDList("jwBa43gDqOQyP87d3eyC");
+    console.log("Test");
+    console.log(playerList);
+    // const test = await getPlayerById("17005079277133484");
+    // console.log(test);
+    
+    if (playerList && playerList.length > 0) {
+      console.log('Player List:', playerList);
+      console.log('First player ID:', playerList[0].playerId);
+      // Additional logic after creating the player
+    } else {
+      console.log('Player list is empty or null');
+    }
+  } catch (error) {
+    console.error(error);
+  }
+},
 
     ToggleRules(){
       if (this.showRules === false){

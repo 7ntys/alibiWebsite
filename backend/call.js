@@ -30,60 +30,6 @@
 //import "firebase/firestore";
 
   
-
-
-
-
-
-
-
-
-
-
-
-// function getPlayerIDList(db, gameId, callback) {
-//   const gamesCollection = firebase.collection('games');
-//   const gameRef = gamesCollection.doc(gameId);
-
-//   // Fetch the game document
-//   gameRef.get()
-//     .then((doc) => {
-//       if (doc.exists) {
-//         const gameData = doc.data();
-//         const playerIds = gameData.player_list || [];
-
-//         const playerInfoArray = [];
-//         let fetchedPlayers = 0;
-
-//         playerIds.forEach(playerId => {
-//           const playerRef = firebase.collection('active_player').doc(playerId);
-//           playerRef.get().then(playerDoc => {
-//             if (playerDoc.exists) {
-//               const playerData = playerDoc.data();
-//               const playerInfo = {
-//                 playerId: playerId,
-//                 pseudo: playerData.pseudo || '',
-//                 team: playerData.team || 0
-//               };
-//               playerInfoArray.push(playerInfo);
-//             }
-
-//             fetchedPlayers++;
-//             if (fetchedPlayers === playerIds.length) {
-//               callback(null, playerInfoArray);
-//             }
-//           });
-//         });
-//       } else {
-//         callback('Game document not found.', null);
-//       }
-//     })
-//     .catch(error => {
-//       console.error('Error fetching game document:', error);
-//       callback('Error fetching game document: ' + error, null);
-//     });
-// }
-
 // function setPlayerTeam(db, playerId, team, callback) {
 //   const playerRef = firebase.collection('active_player').doc(playerId);
 
