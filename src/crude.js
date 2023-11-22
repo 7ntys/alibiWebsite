@@ -7,7 +7,7 @@ export async function getPlayerIDList(gameId) {
       const response = await axios.get(`http://localhost:4002/getPlayerIDList/${gameId}`);
       console.log('Response Status:', response.status);
       console.log('Response Data:', response.data);
-      const playerInfoArray = response.data.playerInfoArray;
+      const playerInfoArray = response.data;
       console.log('Player Info Array:', playerInfoArray);
       return playerInfoArray;
   } catch (error) {

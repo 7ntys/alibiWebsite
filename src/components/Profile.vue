@@ -74,8 +74,7 @@ export default {
   },
   methods:{
     async create_game() {
-      const usernameInput = document.getElementById("pseudonym");
-      const username = usernameInput.value;
+      const username = this.username;
       if (username.trim() === "") {
       alert("Please enter a pseudonym.");
     } else {
@@ -96,27 +95,27 @@ export default {
       }
     }},
 
-    async joinGame() {
-  try {
-    console.log("Before calling getPlayerIDList");
-    let playerList = await getPlayerIDList("jwBa43gDqOQyP87d3eyC");
-    console.log("Test");
-    console.log(playerList);
-    // const test = await getPlayerById("17005079277133484");
-    // console.log(test);
-    
-    if (playerList && playerList.length > 0) {
-      console.log('Player List:', playerList);
-      console.log('First player ID:', playerList[0].playerId);
-      // Additional logic after creating the player
-    } else {
-      console.log('Player list is empty or null');
-    }
-  } catch (error) {
-    console.error(error);
-  }
-},
+    async joinGame(event) {
+      event.preventDefault()
+      try {
+        console.log("Before calling getPlayerIDList");
+        let playerList = await getPlayerIDList("jwBa43gDqOQyP87d3eyC");
+        console.log("Test");
+        console.log(playerList);
+        // const test = await getPlayerById("17005079277133484");
+        // console.log(test);
 
+        if (playerList && playerList.length > 0) {
+          console.log('Player List:', playerList);
+          console.log('First player ID:', playerList[0].playerId);
+          // Additional logic after creating the player
+        } else {
+          console.log('Player list is empty or null');
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    },
     ToggleDropdownRules(){
       if (this.showRules === false){
         if(this.showSocial){
