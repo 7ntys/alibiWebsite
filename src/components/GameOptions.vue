@@ -19,10 +19,10 @@
 <script>
 export default {
   name: "GameOptions",
+  props: ["gameCode"],
   data(){
     return{
       timer: 60,
-      gameCode : localStorage.getItem("gameCode")
     }
   },
   methods:{

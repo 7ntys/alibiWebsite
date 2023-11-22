@@ -27,17 +27,18 @@ const db = getFirestore(fire_app);
 
 //Firebase logic =>//
 
-async function startGame(enteredPseudonym,playerId) { //works
+async function startGame(enteredPseudonym,playerId,gameId) { //works
 
       try {
 
         console.log("Entered pseudonym:", enteredPseudonym);
         console.log("Player ID SVP : "+playerId);
+        console.log("Game ID SVP 2 : "+gameId);
         await initializePlayerId(enteredPseudonym,playerId);
   
         console.log("Initialized player ID:", playerId);
-        
-        const gameId = await createGameDocument();
+        console.log("Game ID SVP : "+gameId);
+        await createGameDocument(gameId);
   
         console.log('Game ID:', gameId);
         console.log('Player ID:', playerId);
@@ -72,10 +73,11 @@ async function createPlayerDocument(pseudo, team, playerId) {
       }
 }
     
-async function createGameDocument() { //works
+async function createGameDocument(gameId) { //works
     try {
+      console.log("Game IDDDDD :"+gameId);
       const documentRef = firebase.collection(db, "games");
-      const newDocRef = firebase.doc(documentRef);
+      const newDocRef = firebase.doc(documentRef, gameId);
       
       const gameData = {
         player_list: [],
@@ -84,7 +86,6 @@ async function createGameDocument() { //works
   
       await firebase.setDoc(newDocRef, gameData);
   
-      const gameId = newDocRef.id;
       console.log('Game document created successfully. Document ID:', gameId);
       return gameId;
     } catch (error) {
@@ -237,8 +238,8 @@ async function getPlayerIDList(gameId) {
 
 app.post('/startGame', async (req, res) => {
   try {
-      const { enteredPseudonym, playerId } = req.body;
-      const result = await startGame(enteredPseudonym, playerId);
+      const { enteredPseudonym, playerId, gameId } = req.body;
+      const result = await startGame(enteredPseudonym, playerId,gameId);
       res.json({ playerId: result });
   } catch (error) {
       console.error('Error:', error);
@@ -259,8 +260,8 @@ app.post('/createPlayer', async (req, res) => {
   
 app.post('/createGameDocument', async (req, res) => {
     try {
-        const gameId = await createGameDocument();
-        res.json({ gameId });
+        const { gameId } = req.body;
+        await createGameDocument(gameId);
     } catch (error) {
         console.error('Error:', error);
         res.status(500).json({ error: 'Internal Server Error' });

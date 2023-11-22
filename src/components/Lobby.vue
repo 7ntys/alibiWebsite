@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="gameOptions">
-      <GameOptions></GameOptions>
+      <GameOptions :gameCode="gameCode"></GameOptions>
     </div>
     <div class="playerProfile">
       <PlayerProfile v-for="player in players" :key="player.name" :playerGiven="player"></PlayerProfile>
@@ -21,15 +21,17 @@ class Player {
 }
 
 import PlayerProfile from "./PlayerProfile.vue"
-
+import {getPlayerIDList,getPlayerIdFromSessionStorage} from "../crude.js";
 export default {
   name: "LobbyComponent",
+  props:["gameCode"],
   components: {
     GameOptions,
     PlayerProfile
   },
   mounted() {
     this.retrievePlayerProfile()
+
   },
   data(){
     return{
@@ -37,17 +39,37 @@ export default {
     }
   },
   methods:{
-    retrievePlayerProfile(){
-      //TODO : Retrieve player from firebase database that are present in the lobby :
-      //Store in a Player object (including name and profile picture index), then in an array
-      console.log("Bonjour")
-      this.players.push(new Player("Player1",2))
-      this.players.push(new Player("Player2",1))
-      this.players.push(new Player("Player3",3))
-      this.players.push(new Player("Player4",2))
+    async retrievePlayerProfile() {
+  
+      try {
+        console.log("Before calling getPlayerIDList");
+        const playerList = await getPlayerIDList(this.gameCode);
+        console.log("Test");
+        console.log("PlayerList"+playerList);
+        if (!playerList.includes(getPlayerIdFromSessionStorage())){
+          this.$router.push({name:'Lobby',params:{gameCode:gameId}});
+        }
+        // const test = await getPlayerById("17005079277133484");
+        // console.log(test);
+        
+        if (playerList && playerList.length > 0) {
+          console.log('Player List:', playerList);
+          for(let i = 0; i <= playerList.length;i++){
+            this.players.push(new Player(playerList[i].pseudo,3));
+          }
+          // Additional logic after creating the player
+        } else {
+          console.log('Player list is empty or null');
+        }
+      } catch (error) {
+        console.error(error);
+      }
     }
   }
 }
+
+
+ 
 </script>
 
 <style scoped>

@@ -7,9 +7,7 @@ export async function getPlayerIDList(gameId) {
       const response = await axios.get(`http://localhost:4002/getPlayerIDList/${gameId}`);
       console.log('Response Status:', response.status);
       console.log('Response Data:', response.data);
-      const playerInfoArray = response.data.playerInfoArray;
-      console.log('Player Info Array:', playerInfoArray);
-      return playerInfoArray;
+      return response.data;
   } catch (error) {
       console.error('Error fetching player ID list:', error);
       throw error;
@@ -30,9 +28,9 @@ export async function createPlayer(pseudo,team,playerId) {
     }
 }
 
-export async function createGameDocument() {
+export async function createGameDocument(gameId) {
     try {
-      const response = await axios.post('http://localhost:4002/createGameDocument');
+      const response = await axios.post('http://localhost:4002/createGameDocument', {gameId:gameId});
       console.log(response.data);
     } catch (error) {
       console.error(error);
@@ -63,9 +61,9 @@ export async function addPlayerToGame(gameId, playerId) {
     }
 }
 
-export async function startGame(enteredPseudonym, playerId) {
+export async function startGame(enteredPseudonym, playerId, gameId) {
     try {
-        const response = await axios.post('http://localhost:4002/startGame', { enteredPseudonym, playerId });
+        const response = await axios.post('http://localhost:4002/startGame', { enteredPseudonym, playerId, gameId });
         console.log(response.data);
         return response.data;
     } catch (error) {
@@ -93,6 +91,27 @@ export function generateId() {
   uniqueId.toString();
   console.log("unique  id : "+uniqueId);
   return uniqueId;
+}
+
+export function generate_soft_ID() {
+  // Définir les caractères possibles
+  const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+  // Longueur de l'ID que vous souhaitez générer
+  const longueurID = 6;
+
+  let id = '';
+
+  // Générer l'ID en bouclant sur la longueur spécifiée
+  for (let i = 0; i < longueurID; i++) {
+    // Sélectionner un caractère aléatoire
+    const caractereAleatoire = caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+
+    // Ajouter le caractère à l'ID
+    id += caractereAleatoire;
+  }
+
+  return id;
 }
 
 
