@@ -126,4 +126,12 @@ button img {
 .dislikedAnim{
   background: rgba(255,0,0,0.3);
 }
+@media only screen and (max-width: 600px) {
+  .component{
+    width: 90%;
+  }
+  .profile img{
+    width: 50%;
+  }
+}
 </style>

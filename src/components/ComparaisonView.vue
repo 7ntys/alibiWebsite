@@ -63,6 +63,9 @@ export default {
 </script>
 
 <style scoped>
+.container{
+  margin-top: 60px;
+}
 .answer img{
   margin: 0 auto;
   width: 20%;
@@ -91,5 +94,10 @@ button {
 .submit:hover{
   transform: scale(1.1);
   transition: 0.2s;
+}
+@media only screen and (max-width: 600px) {
+  .submit{
+    width: 60%;
+  }
 }
 </style>

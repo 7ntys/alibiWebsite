@@ -1,5 +1,6 @@
 <template>
-  <div class="thing">
+  <Transition name="fade">
+  <div class="thing" v-if="isLoaded">
     <div :class="{'container':!showRules,'containerActive':showRules}">
       <h1>Welcome to Alibi :</h1>
       <div class="carouselContainer">
@@ -7,25 +8,41 @@
       </div>
       <form>
         <div class="input-container">
-          <input  id="pseudonym" v-model="username" type="text" placeholder="Username" maxlength="15">
-          <label :class="{'overflow':username.length === 15}">{{username.length}}/15</label>
+          <TextFieldComponent v-model="username" label="Username" limit="15"></TextFieldComponent>
         </div>
         <div class="input-container">
-          <input v-model="gameCode" type="text" placeholder="Game code (if joining)" maxlength="6">
+          <TextFieldComponent v-model="code" label="Game Code" limit="6"></TextFieldComponent>
         </div>
-        <button :class="{'greyButton':!showJoin}" @click="joinGame">Join Game</button>
-        <button :class="{'greyButton':username.length < 5}" @click="create_game()">Start game</button>
+        <button :class="{'greyButton':!this.showJoin}" @click="joinGame">Join Game</button>
+        <button :class="{'greyButton':!this.showCreate}" @click="createGame">Create Game</button>
       </form>
     </div>
-    <div class="dropdown" @click="ToggleRules()">
-      <h2>Rules</h2>
-      <img :src="dropArrow" alt="dropdown arrow">
-      <Transition name="fade">
-        <div class="rules" v-if="showRules">
-          <RulesComponent></RulesComponent>
-        </div>
-      </Transition>
+    <div class="dropdowncontainer">
+      <div class="dropdown" @click="ToggleDropdownRules">
+        <h2>Rules</h2>
+        <img :src="dropArrowRules" alt="dropdown arrow">
+        <Transition name="fade">
+          <div class="rules" v-if="showRules">
+            <RulesComponent></RulesComponent>
+          </div>
+        </Transition>
+      </div>
+      <div class="dropdownSocial" @click="ToggleDropdownSocial">
+        <h2>Social</h2>
+        <img :src="dropArrowSocial" alt="dropdown arrow">
+        <Transition name="fade">
+          <div class="social" v-if="showSocial">
+            <SocialComponent/>
+          </div>
+        </Transition>
+      </div>
     </div>
+  </div>
+  </Transition>
+  <div v-if="!isLoaded" :class="{'anim':isAnim}">
+    <Transition name="fade">
+      <PageLoader/>
+    </Transition>
   </div>
 </template>
 <script>
@@ -35,21 +52,27 @@
 import {startGame,getPlayerIdFromSessionStorage,setPlayerIdFromSessionStorage,generateId, getPlayerIDList} from "../crude.js";
 import PictureCarousel from "@/components/PictureCarousel";
 import RulesComponent from "@/components/Rules";
+import SocialComponent from "@/components/SocialComponent.vue";
+import PageLoader from "@/components/PageLoader.vue";
+import TextFieldComponent from "@/components/TextFieldComponent.vue";
 export default {
   name: "ProfileComponent",
-  components: {RulesComponent, PictureCarousel},
+  components: {TextFieldComponent, PageLoader, SocialComponent, RulesComponent, PictureCarousel},
+  props:["gameCode"],
   data(){
     return{
+      isLoaded:false,
+      isAnim : false,
       username:"",
-      gameCode:"",
-      dropArrow: require("../assets/Arrow Down.png"),
+      code: this.gameCode,
+      dropArrowSocial: require("../assets/Arrow Down.png"),
+      dropArrowRules: require("../assets/Arrow Down.png"),
       showRules : false,
+      showSocial : false,
       profilePictureIndex : 0,
     }
   },
   methods:{
-
-
     async create_game() {
       const usernameInput = document.getElementById("pseudonym");
       const username = usernameInput.value;
@@ -94,20 +117,60 @@ export default {
   }
 },
 
-    ToggleRules(){
+    ToggleDropdownRules(){
       if (this.showRules === false){
-        this.dropArrow = require("../assets/Arrow Up.png")
+        if(this.showSocial){
+          this.showSocial = false;
+          this.dropArrowSocial = require("../assets/Arrow Down.png")
+        }
+        this.dropArrowRules = require("../assets/Arrow Up.png")
         this.showRules = true;
       } else {
-        this.dropArrow = require("../assets/Arrow Down.png")
+        this.dropArrowRules = require("../assets/Arrow Down.png")
         this.showRules = false;
       }
-    }
+    },
+    ToggleDropdownSocial(){
+      if(this.showSocial === false){
+        if(this.showRules){
+          this.showRules = false;
+          this.dropArrowRules = require("../assets/Arrow Down.png")
+        }
+        this.dropArrowSocial = require("../assets/Arrow Up.png")
+        this.showSocial = true;
+      }
+      else {
+        this.dropArrowSocial = require("../assets/Arrow Down.png")
+        this.showSocial = false;
+      }
+    },
   },
   computed:{
-    showJoin(){
-      return this.gameCode.length == 6 && this.username.length >= 5;
+    showJoin: function (){
+      return this.code.length === 6 && this.username.length >= 5;
     },
+    showCreate : function (){
+      return this.username.length >= 5;
+    }
+  },
+  mounted() {
+    if(document.readyState === 'complete'){
+      this.isAnim = true
+      setTimeout(() => {
+        this.isLoaded = true
+      }, 1000);
+      this.ToggleDropdownRules()
+      return;
+    }
+    document.onreadystatechange = () => {
+      if (document.readyState === 'complete') {
+        this.isAnim = true
+        setTimeout(() => {
+          this.isLoaded = true
+        }, 2000);
+      }
+    }
+    this.ToggleDropdownRules()
   }
 }
 
@@ -116,6 +179,10 @@ export default {
 <style scoped>
 .overflow{
   color: red;
+}
+a{
+  color: white;
+  text-decoration: none;
 }
 .containerActive{
   width: 100%;
@@ -135,25 +202,19 @@ export default {
   display: inline-block;
   box-shadow: black 0 0 10px;
 }
+.input-container{
+  width: 60%;
+  margin: 10px auto;
+}
 .thing{
   width: 40%;
   margin: 0 auto;
+  margin-top: 60px;
 }
 H1{
   color : white;
   font-weight: bold;
   text-align: center;
-}
-input[type="text"]{
-  width: 70%;
-  padding: 10px;
-  border-radius: 10px;
-  border: none;
-  margin: 10px;
-  margin-left: 30px;
-  display: inline-block;
-  position: relative;
-  box-shadow: black 0 0 10px;
 }
 button{
   width: 40%;
@@ -165,17 +226,16 @@ button{
   color: white;
   font-weight: bold;
 }
-label{
-  position: absolute;
-  right: 17px;
-  top: 65%;
-  transform: translateY(-50%);
-  color: white;
-  font-weight: bold;
-}
+
 /*make the dropdown menu appear at the right of the .container div :*/
-.dropdown {
+.dropdowncontainer{
   position: fixed;
+  display: inline-block;
+  width: 20%;
+  margin: 0 0;
+}
+.dropdown {
+  position: relative;
   margin: 0 auto;
   display: inline-block;
   background: rgba(149,62,64,1);
@@ -185,14 +245,28 @@ label{
   font-weight: bold;
   cursor: pointer;
   box-shadow: black 5px 0px 10px;
+  float: left;
 }
-.dropdown img {
+.dropdownSocial {
+  position: relative;
+  margin: 5px auto;
+  display: inline-block;
+  background: rgba(149,62,64,1);
+  border-radius: 0 20px 20px 0;
+  padding: 10px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: black 5px 0px 10px;
+  float: left;
+}
+.dropdown img,.dropdownSocial img {
   float: right;
   margin: 0;
   display: flex;
   width: 10%;
 }
-.dropdown h2 {
+.dropdown h2,.dropdownSocial h2 {
   float: left;
   margin: 0;
   display: flex;
@@ -210,6 +284,9 @@ label{
 .fade-leave-to {
   opacity: 0;
 }
+a:hover{
+  text-decoration: underline;
+}
 button{
   display: inline-block;
   margin: 15px;
@@ -225,4 +302,61 @@ button{
   width: 50%;
   margin: 0 auto;
 }
+@media only screen and (max-width: 600px) {
+  .thing{
+    width: 100%;
+  }
+  .containerActive{
+    border-radius: 20px;
+  }
+  .carouselContainer{
+    width: 100%;
+  }
+  input[type="text"]{
+    width: 80%;
+  }
+  button{
+    width: 80%;
+  }
+  .dropdowncontainer{
+    width: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow-y: scroll;
+    border-radius: 20px;
+    margin-top: 10px;
+  }
+  .dropdown, .dropdownSocial{
+    width: 90%;
+    border-radius: 20px;
+  }
+  .dropdownSocial{
+    margin:10px auto;
+  }
+  .rules{
+    width: 100%;
+  }
+  .container{
+    border-radius: 20px;
+  }
+  button{
+    margin: 10px auto;
+  }
+  .overflow{
+    display: none;
+  }
+  .input-container label{
+    display: none;
+  }
+}
+.anim{
+  animation: fade 1s ease-in-out;
+}
+PageLoader{
+  transition: 0.5s;
+}
+
 </style>

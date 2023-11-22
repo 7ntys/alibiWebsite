@@ -10,7 +10,7 @@ import Podium from "@/components/Podium.vue";
 
 //Use vue router to create routes :
 const routes = [
-    { path: '/', component: Profile,name:'Profile' },
+    { path: '/:gameCode?', component: Profile,name:'Profile',props:true},
     { path: '/lobby', component: Lobby,name:'Lobby' },
     {path: '/alibi/:timerPassed',component: Alibi,name:'Alibi',props:true},
     {path: '/questions',component: Questions,name:'Questions'},
