@@ -49,7 +49,7 @@
 // eslint-disable-next-line no-unused-vars
 /* eslint-disable */
 
-import {startGame,getPlayerIdFromSessionStorage,setPlayerIdFromSessionStorage,generateId, getPlayerIDList,generate_soft_ID} from "../crude.js";
+import {startGame,getPlayerIdFromSessionStorage,setPlayerIdFromSessionStorage,generateId, getPlayerIDList,generate_soft_ID,createPlayer,addPlayerToGame} from "../crude.js";
 import PictureCarousel from "@/components/PictureCarousel";
 import RulesComponent from "@/components/Rules";
 import SocialComponent from "@/components/SocialComponent.vue";
@@ -104,10 +104,15 @@ export default {
     let temp = getPlayerIdFromSessionStorage();
       if(temp == null){temp = generateId();}
     const playerId = temp;
-    setPlayerIdFromSessionStorage(playerId); 
-    await createPlayer(this.username,playerId);
-    await addPlayerToGame(this.code, playerId);
-    this.$router.push({name:'Lobby',params:{gameCode:gameId}});
+    setPlayerIdFromSessionStorage(playerId);
+    await Promise.all([
+    createPlayer(this.username, 0, playerId),
+    addPlayerToGame(this.gameCode, playerId),
+    this.$router.push({name:'Lobby',params:{gameCode:this.gameCode}})
+  ]);
+
+
+    
     
   } catch (error) {
     console.error(error);

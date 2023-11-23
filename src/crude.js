@@ -1,4 +1,5 @@
 import axios from 'axios';
+
 //Note : desfois l'ordre de placement des fonctions des crudes changent le fonctionnement du programme 
 
 
@@ -51,14 +52,15 @@ export async function getPlayerById(playerId) {
 }
 
 export async function addPlayerToGame(gameId, playerId) {
-    try {
-        const response = await axios.post(`http://localhost:4002/addPlayerToGame/${gameId}/${playerId}`);
-        console.log(response.data);  
-        return response.data;
-    } catch (error) {
-        console.error('Error:', error);
-        throw error;
-    }
+  try {
+    const response = await axios.post(`http://localhost:4002/addPlayerToGame/${gameId}/${playerId}`);
+    console.log('Response Status:', response.status);
+    console.log('Response Data:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error adding player to the game:', error);
+    throw error;
+  }
 }
 
 export async function startGame(enteredPseudonym, playerId, gameId) {

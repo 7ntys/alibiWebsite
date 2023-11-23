@@ -1,8 +1,13 @@
 const express=require('express');
 const cors = require('cors')
+const http = require('http');
 const app=express();
 app.use(cors());
 app.use(express.json());
+const { Server } = require('socket.io');
+const server = http.createServer(app);
+const io = new Server(server);
+
 const port = 4002;
 
 //Firebase init =>//
@@ -32,8 +37,6 @@ async function startGame(enteredPseudonym,playerId,gameId) { //works
       try {
 
         console.log("Entered pseudonym:", enteredPseudonym);
-        console.log("Player ID SVP : "+playerId);
-        console.log("Game ID SVP 2 : "+gameId);
         await initializePlayerId(enteredPseudonym,playerId);
   
         console.log("Initialized player ID:", playerId);
@@ -81,7 +84,8 @@ async function createGameDocument(gameId) { //works
       
       const gameData = {
         player_list: [],
-        alibiTime: 60
+        alibiTime: 60,
+        started: false
       };
   
       await firebase.setDoc(newDocRef, gameData);
@@ -131,13 +135,15 @@ async function getPlayerById(playerId) { //works
 
 async function addPlayerToGame(gameId, playerId) { //works
     try {
-      const gamesCollection = firebase.collection(db, 'games');
+      const gamesCollection = firebase.collection(db,'games');
+      console.log("Intra-Game ID : "+gameId);
       const gameRef = firebase.doc(gamesCollection, gameId);
   
       // Fetch the game document
       const docSnapshot = await firebase.getDoc(gameRef);
-  
+      console.log("Result : ",docSnapshot.exists());
       if (docSnapshot.exists()) {
+        console.log("CA PASSE PUTAIN ");
         const gameData = docSnapshot.data();
   
         // Check if player_list exists or initialize it
@@ -148,19 +154,17 @@ async function addPlayerToGame(gameId, playerId) { //works
         // Check if the player is not already in the list and the list is not full
         if (!gameData.player_list.includes(playerId) && gameData.player_list.length < 4) {
           gameData.player_list.push(playerId);
-  
+          
           // Update the game document with the modified player_list
           await firebase.updateDoc(gameRef, { player_list: gameData.player_list });
-  
-          console.log('Player added to the list successfully.');
+          // return { success: true, message: 'Player added to the game successfully.' };
+          console.log("Player added to the game successfully.");
         //   callback(null);
         } else {
           console.log('Player already in the list or list is full.');
         //   callback(null);
         }
-      } else {
-        console.log('Game document not found.');
-        // callback(null);
+        
       }
     } catch (error) {
       console.error('Error fetching or updating game document:', error);
@@ -218,6 +222,7 @@ async function getPlayerIDList(gameId) {
         
       }
       console.log ("playerInfoArray : "+playerInfoArray[0].playerId);
+      socket.emit('playerListUpdate', playerInfoArray);
       return playerInfoArray;
 
     
@@ -249,9 +254,8 @@ app.post('/startGame', async (req, res) => {
 
 app.post('/createPlayer', async (req, res) => {
     try {
-      const { pseudo, team } = req.body;
-      await createPlayerDocument(pseudo, team,playerId);
-      res.json({ playerId });
+      const { pseudo, team, playerId } = req.body;
+      await createPlayerDocument(pseudo,team,playerId);
     } catch (error) {
       console.error('Error:', error);
       res.status(500).json({ error: 'Internal Server Error' });
@@ -301,14 +305,9 @@ app.get('/getPlayerById/:playerId', async (req, res) => {
 app.post('/addPlayerToGame/:gameId/:playerId', async (req, res) => {
     try {
         const { gameId, playerId } = req.params;
-        const gameData = await addPlayerToGame(gameId, playerId);
-
-        if (gameData) {
-            res.json({ message: 'Player added to the game successfully' });
-        } else {
-            console.log('Game document not found.');
-            res.status(404).json({ error: 'Game document not found' });
-        }
+        console.log("ça passe");
+        await addPlayerToGame(gameId, playerId);
+        console.log("ça passe 2");
     } catch (error) {
         console.error('Error:', error);
         res.status(500).json({ error: 'Internal Server Error' });
@@ -329,6 +328,7 @@ app.get('/getPlayerIDList/:gameId', async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
 
 
 //Api call 
