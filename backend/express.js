@@ -1,19 +1,20 @@
 const express=require('express');
 const cors = require('cors')
-const http = require('http');
+// const http = require('http');
 const app=express();
+// const server = http.createServer(app);
 app.use(cors());
 app.use(express.json());
-const { Server } = require('socket.io');
-const server = http.createServer(app);
-const io = new Server(server);
-
+// const { Server } = require('socket.io');
+// const io = new Server(server);
 const port = 4002;
+
+
 
 //Firebase init =>//
 const firebase = require('firebase/firestore');
 const { initializeApp } = require('firebase/app');
-const { getFirestore, collection, doc, setDoc, updateDoc, getDoc } = require('firebase/firestore');
+const { getFirestore, collection, doc, setDoc, updateDoc, getDoc, onSnapshot } = require('firebase/firestore');
 
 
 const firebaseConfig = {
@@ -31,6 +32,28 @@ const db = getFirestore(fire_app);
 //End of Firebase init//
 
 //Firebase logic =>//
+
+// io.on('connection', (socket) => {
+//   console.log('Client connected');
+
+//   // Listen for changes to player_list and emit them to the client
+//   const game_id = 'game_id'; // Replace with your actual game_id
+//   const docRef = admin.firestore().collection('games').doc(game_id);
+//   const unsubscribe = docRef.onSnapshot((doc) => {
+//     if (doc.exists) {
+//       const playerList = doc.data().player_list;
+//       socket.emit('playerListUpdate', { playerList });
+//     }
+//   });
+
+//   // Clean up when the client disconnects
+//   socket.on('disconnect', () => {
+//     console.log('Client disconnected');
+//     unsubscribe();
+//   });
+// });
+
+
 
 async function startGame(enteredPseudonym,playerId,gameId) { //works
 
@@ -190,9 +213,8 @@ async function initializePlayerId(enteredPseudonym,playerId) { //works
 }
 
 async function getPlayerIDList(gameId) {
-  console.log("Reached this point 3");
+
   try {
-    console.log("Reached this point 2");
     const gamesCollection = firebase.collection(db, 'games');
     const gameRef = firebase.doc(gamesCollection, gameId);
 
@@ -222,7 +244,6 @@ async function getPlayerIDList(gameId) {
         
       }
       console.log ("playerInfoArray : "+playerInfoArray[0].playerId);
-      socket.emit('playerListUpdate', playerInfoArray);
       return playerInfoArray;
 
     
@@ -330,7 +351,6 @@ app.get('/getPlayerIDList/:gameId', async (req, res) => {
 });
 
 
-
 //Api call 
 
 
@@ -341,3 +361,16 @@ app.listen(port,()=>console.log("Alibi server is running on port "+port));
 //End of Express Post//
 
 //Function useful =>//
+
+// ...
+
+// Firestore listeners
+
+
+
+// ...
+
+// Usage example
+
+// To stop listening, call the unsubscribe function
+// unsubscribe();

@@ -21,8 +21,8 @@ class Player {
 }
 
 import PlayerProfile from "./PlayerProfile.vue"
-import {getPlayerIDList,getPlayerIdFromSessionStorage} from "../crude.js";
-import io from 'socket.io-client';
+import {getPlayerIDList} from "../crude.js";
+// import io from 'socket.io-client';
 export default {
   name: "LobbyComponent",
   props:["gameCode"],
@@ -31,76 +31,50 @@ export default {
     PlayerProfile
   },
   mounted() {
+    console.log("Mounted come");
+
+    // const socket = io('http://localhost:4002');
     this.retrievePlayerProfile()
 
+        // Connect to the socket server
+
+        // Listen for the 'playerListUpdate' event
+//         socket.on('playerListUpdate', ({ playerList }) => {
+//   console.log('Nouvelle valeur de player_list en temps réel :', playerList);
+// });
   },
-  data(){
-    return{
-      players : [],
-    }
-  },
-  methods:{
-    async retrievePlayerProfile() {
+
+data() {
+  return {
+    players: [],
+  };
+},
+
+methods: {
+  async retrievePlayerProfile() {
   try {
-    const temp = getPlayerIdFromSessionStorage();
-    if (temp == null) {
-      console.log("temp",temp);
-      this.$router.push({ name: 'Profile', params: { gameCode: this.gameCode } });
-    }
-
-    if (!playerList.includes(temp)) {
-      this.$router.push({ name: 'Profile', params: { gameCode: this.gameCode } });
-    }
-
-    console.log("Before calling getPlayerIDList");
-
-    // Connect to the socket server
-    const socket = io('http://localhost:4002');
-
-    // Listen for the 'playerListUpdate' event
-    socket.on('playerListUpdate', (updatedPlayerList) => {
-      console.log('Received updated player list:', updatedPlayerList);
-
-      // Check if the temp player is in the updated list
-      if (!updatedPlayerList.some(player => player.playerId === temp)) {
-        this.$router.push({ name: 'Profile', params: { gameCode: this.gameCode } });
-      }
-
-      // Filter out players that are already in the array
-      const newPlayers = updatedPlayerList.filter(player => !this.players.some(existingPlayer => existingPlayer.playerId === player.playerId));
-
-      // Push new players into the array
-      for (const newPlayer of newPlayers) {
-        this.players.push(new Player(newPlayer.pseudo, 3));
-      }
-
-      // Additional logic after updating the player array
-    });
+    // const temp = getPlayerIdFromSessionStorage();
+    // if (temp == null) {
+    //   this.$router.push({ name: 'Profile', params: { gameCode: this.gameCode } });
+    // }
 
     // Retrieve the initial player list
     const playerList = await getPlayerIDList(this.gameCode);
-    console.log("Test");
-    console.log("PlayerList" + playerList);
 
-    
-
-    if (playerList && playerList.length > 0) {
-      console.log('Player List:', playerList);
-      for (let i = 0; i <= playerList.length; i++) {
-        this.players.push(new Player(playerList[i].pseudo, 3));
-      }
-      // Additional logic after creating the player
-    } else {
-      console.log('Player list is empty or null');
+    // Check if the player list has changed
+    if (JSON.stringify(playerList) !== JSON.stringify(this.players)) {
+      // Update your local players array
+      this.players = playerList.map(player => new Player(player.pseudo, 3));
     }
+
+    console.log("PlayerList retrieved from the server:", playerList);
+    return playerList;  
   } catch (error) {
     console.error(error);
   }
-}
-  }
-}
-
-
+},
+},
+};
  
 </script>
 

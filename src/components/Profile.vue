@@ -105,6 +105,7 @@ export default {
       if(temp == null){temp = generateId();}
     const playerId = temp;
     setPlayerIdFromSessionStorage(playerId);
+    console.log("playerId storage 2 : " + getPlayerIdFromSessionStorage());
     await Promise.all([
     createPlayer(this.username, 0, playerId),
     addPlayerToGame(this.gameCode, playerId),
