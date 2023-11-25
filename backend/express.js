@@ -1,12 +1,16 @@
 const express=require('express');
 const cors = require('cors')
-// const http = require('http');
 const app=express();
-// const server = http.createServer(app);
 app.use(cors());
 app.use(express.json());
-// const { Server } = require('socket.io');
-// const io = new Server(server);
+const http = require('http').Server(app);
+const io = require('socket.io')(http, {
+  cors: {
+    origin: "*", 
+    methods: ["GET", "POST"]
+  }
+});
+
 const port = 4002;
 
 
@@ -33,25 +37,56 @@ const db = getFirestore(fire_app);
 
 //Firebase logic =>//
 
-// io.on('connection', (socket) => {
-//   console.log('Client connected');
 
-//   // Listen for changes to player_list and emit them to the client
-//   const game_id = 'game_id'; // Replace with your actual game_id
-//   const docRef = admin.firestore().collection('games').doc(game_id);
-//   const unsubscribe = docRef.onSnapshot((doc) => {
-//     if (doc.exists) {
-//       const playerList = doc.data().player_list;
-//       socket.emit('playerListUpdate', { playerList });
-//     }
-//   });
+io.on('connection', (socket) => {
+  
 
-//   // Clean up when the client disconnects
-//   socket.on('disconnect', () => {
-//     console.log('Client disconnected');
-//     unsubscribe();
-//   });
-// });
+  socket.on('playerListUpdate', (playerList) => {
+    console.log('Client connected 2');
+    // Listen for changes to player_list and emit them to the client
+    const collectionRef = collection(db,'games');
+    const docRef = doc(collectionRef,"JCZ5QE");
+
+    const unsubscribe = onSnapshot(docRef, async (doc) => {
+      try {
+        if (doc.exists) {
+          const playerIds = doc.data().player_list;
+          const playerInfoArray = [];
+          console.log("Firebase list has been updated");
+          console.log("Updated player list inside the socket : "+playerIds);
+          for (const playerId of playerIds) {
+            const playersCollection = firebase.collection(db, 'active_player');
+            const playerRef = firebase.doc(playersCollection,playerId);
+            const playerDoc = await firebase.getDoc(playerRef);
+    
+            if (playerDoc.exists) {
+              const playerData = playerDoc.data();
+              const playerInfo = {
+                playerId: playerId,
+                pseudo: playerData.pseudo || '',
+                team: playerData.team || 0
+              };
+              playerInfoArray.push(playerInfo);
+            }
+            
+          }
+          console.log ("playerInfoArray in the socket : "+playerInfoArray);
+          io.emit('playerListUpdate', { playerList: playerInfoArray });
+        }
+      } catch (error) {
+        console.error('Error updating player list:', error);
+        throw error;
+      }
+    });
+  
+    // Clean up when the client disconnects
+    socket.on('disconnect', () => {
+      console.log('Client disconnected');
+      unsubscribe();
+    });
+  });
+});
+
 
 
 
@@ -243,7 +278,8 @@ async function getPlayerIDList(gameId) {
         }
         
       }
-      console.log ("playerInfoArray : "+playerInfoArray[0].playerId);
+      console.log ("playerInfoArray : "+playerInfoArray);
+
       return playerInfoArray;
 
     
@@ -255,6 +291,7 @@ async function getPlayerIDList(gameId) {
     console.error('Error fetching game document:', error);
     return null;
   }
+  
 }
 
 //End of Firebase logic//
@@ -355,7 +392,7 @@ app.get('/getPlayerIDList/:gameId', async (req, res) => {
 
 
 
-app.listen(port,()=>console.log("Alibi server is running on port "+port));
+http.listen(port,()=>console.log("Alibi server is running on port "+port));
 
 
 //End of Express Post//

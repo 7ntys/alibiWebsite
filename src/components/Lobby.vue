@@ -22,7 +22,7 @@ class Player {
 
 import PlayerProfile from "./PlayerProfile.vue"
 import {getPlayerIDList} from "../crude.js";
-// import io from 'socket.io-client';
+import io from 'socket.io-client';
 export default {
   name: "LobbyComponent",
   props:["gameCode"],
@@ -31,18 +31,24 @@ export default {
     PlayerProfile
   },
   mounted() {
-    console.log("Mounted come");
+  console.log("Mounted come");
 
-    // const socket = io('http://localhost:4002');
-    this.retrievePlayerProfile()
-
-        // Connect to the socket server
-
-        // Listen for the 'playerListUpdate' event
-//         socket.on('playerListUpdate', ({ playerList }) => {
-//   console.log('Nouvelle valeur de player_list en temps réel :', playerList);
-// });
-  },
+  const socket = io('http://localhost:4002');
+  socket.connect();
+  
+  // Emit the 'playerListUpdate' event to the server
+  socket.emit('playerListUpdate', { playerList: this.players });
+  console.log("Emitting playerListUpdate event to the server");
+  
+  socket.on('playerListUpdate', ({ playerList }) => {
+    console.log("Nouvelle valeur de player_list en temps réel", playerList);
+    
+    // Map the playerList to this.players
+    this.players = playerList.map(player => new Player(player.pseudo, 3));
+  });
+  
+  console.log("Listening to playerListUpdate event from the server");
+},
 
 data() {
   return {
