@@ -49,7 +49,7 @@
 // eslint-disable-next-line no-unused-vars
 /* eslint-disable */
 
-import {startGame,getPlayerIdFromSessionStorage,setPlayerIdFromSessionStorage,generateId, getPlayerIDList,generate_soft_ID,createPlayer,addPlayerToGame} from "../crude.js";
+import {startGame,getFromSessionStorage,setFromSessionStorage,generateId, getPlayerIDList,generate_soft_ID,createPlayer,addPlayerToGame} from "../crude.js";
 import PictureCarousel from "@/components/PictureCarousel";
 import RulesComponent from "@/components/Rules";
 import SocialComponent from "@/components/SocialComponent.vue";
@@ -83,12 +83,13 @@ export default {
         const gameId = generate_soft_ID();
         console.log("game_id : " + gameId);
         console.log("username : " + username);
-        let temp = getPlayerIdFromSessionStorage();
+        let temp = getFromSessionStorage("player_id");
         if(temp == null){temp = generateId();}
         const playerId = temp;
         console.log("player id init by function after : "+playerId);
-        setPlayerIdFromSessionStorage(playerId); 
-        console.log("playerId storage : " + getPlayerIdFromSessionStorage());
+        setFromSessionStorage("player_id",playerId); 
+        setFromSessionStorage("game_id",gameId);
+        console.log("playerId storage : " + getFromSessionStorage("player_id"));
         await startGame(username,playerId,gameId);
         console.log("playerId : " + playerId);
         console.log('Game creatd');
@@ -101,11 +102,12 @@ export default {
     async joinGame(event) {
       event.preventDefault();
   try {
-    let temp = getPlayerIdFromSessionStorage();
+    let temp = getFromSessionStorage("player_id");
       if(temp == null){temp = generateId();}
     const playerId = temp;
-    setPlayerIdFromSessionStorage(playerId);
-    console.log("playerId storage 2 : " + getPlayerIdFromSessionStorage());
+    setFromSessionStorage("player_id",playerId);
+    setFromSessionStorage("game_id",this.gameCode);
+    console.log("playerId storage 2 : " + getFromSessionStorage("player_id"));
     await Promise.all([
     createPlayer(this.username, 0, playerId),
     addPlayerToGame(this.gameCode, playerId),

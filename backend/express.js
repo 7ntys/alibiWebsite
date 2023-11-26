@@ -7,8 +7,10 @@ const http = require('http').Server(app);
 const io = require('socket.io')(http, {
   cors: {
     origin: "*", 
-    methods: ["GET", "POST"]
-  }
+    methods: ["GET", "POST","PUT"]
+  }, 
+  serveClient:false,
+  debug:true
 });
 
 const port = 4002;
@@ -41,19 +43,22 @@ const db = getFirestore(fire_app);
 io.on('connection', (socket) => {
   
 
-  socket.on('playerListUpdate', (playerList) => {
-    console.log('Client connected 2');
+  socket.on('playerListUpdate', (playerList,gameId) => {
+    console.log('Client connected playerListUpdate');
     // Listen for changes to player_list and emit them to the client
     const collectionRef = collection(db,'games');
-    const docRef = doc(collectionRef,"JCZ5QE");
+    const docRef = doc(collectionRef,gameId);
 
     const unsubscribe = onSnapshot(docRef, async (doc) => {
       try {
         if (doc.exists) {
           const playerIds = doc.data().player_list;
+          const teamList = doc.data().team;
           const playerInfoArray = [];
           console.log("Firebase list has been updated");
           console.log("Updated player list inside the socket : "+playerIds);
+          console.log("Updated team list inside the socket : "+teamList);
+          let cpt = 0;
           for (const playerId of playerIds) {
             const playersCollection = firebase.collection(db, 'active_player');
             const playerRef = firebase.doc(playersCollection,playerId);
@@ -64,14 +69,15 @@ io.on('connection', (socket) => {
               const playerInfo = {
                 playerId: playerId,
                 pseudo: playerData.pseudo || '',
-                team: playerData.team || 0
+                team: teamList[cpt] || 0
               };
               playerInfoArray.push(playerInfo);
             }
+          cpt++;  
             
           }
           console.log ("playerInfoArray in the socket : "+playerInfoArray);
-          io.emit('playerListUpdate', { playerList: playerInfoArray });
+          socket.emit('playerListUpdate', { playerList: playerInfoArray });
         }
       } catch (error) {
         console.error('Error updating player list:', error);
@@ -85,7 +91,39 @@ io.on('connection', (socket) => {
       unsubscribe();
     });
   });
+
+  socket.on('GameSettings', (gameSettings,gameId) => {
+    console.log('Client connected GameSettings');
+    // Listen for changes to player_list and emit them to the client
+    const collectionRef = collection(db,'games');
+    const docRef = doc(collectionRef,gameId);
+
+    const unsubscribe = onSnapshot(docRef, async (doc) => {
+      try {
+        if (doc.exists) {
+          const gameSettings = doc.data().gameSettings;
+          
+          console.log ("GameSettings in the socket : "+gameSettings);
+          socket.emit('GameSettings', { gameSettings: gameSettings });
+        }
+      } catch (error) {
+        console.error('Error updating player list:', error);
+        throw error;
+      }
+    });
+  
+    // Clean up when the client disconnects
+    socket.on('disconnect', () => {
+      console.log('Client disconnected');
+      unsubscribe();
+    });
+  });
+   
+
 });
+
+  
+  
 
 
 
@@ -142,8 +180,14 @@ async function createGameDocument(gameId) { //works
       
       const gameData = {
         player_list: [],
+        team:[0,0,0,0],
         alibiTime: 60,
-        started: false
+        started: false,
+        gameSettings:{"alibiTime":60,
+          "tsunami":"off",
+          "fire":"off",
+          "lamp":"off",
+          "hidden_chrono":"off"}
       };
   
       await firebase.setDoc(newDocRef, gameData);
@@ -155,19 +199,6 @@ async function createGameDocument(gameId) { //works
     //   callback('Error creating game document: ' + error, null, null);
     }
 }
-
-// function generatePlayerId() {
-//     createPlayerDocument(db, "None", 0, (error, playerId) => {
-//       if (error) {
-//         // Handle error
-//         console.error(error);
-//       } else {
-//         // playerId = playerId;
-//         // Player document created successfully
-//         console.log('Player document created with ID:', playerId);
-//       }
-//     });
-// }
 
 async function getPlayerById(playerId) { //works
     try {
@@ -190,6 +221,45 @@ async function getPlayerById(playerId) { //works
         throw error;
     }
 }
+
+async function updatePlayerTeam(gameId, playerId, teamId) {
+  try {
+      const gamesCollection = collection(db, 'games');
+      const gameRef = doc(gamesCollection, gameId);
+
+      const gameDoc = await getDoc(gameRef);
+
+      if (!gameDoc.exists()) {
+          console.log('Game document not found.');
+          return null;
+      }
+
+      const playerIds = gameDoc.data().player_list;
+      let teamList = gameDoc.data().team;
+      console.log("teamList : "+teamList);
+      console.log("playerIds : "+playerIds);
+      console.log("teamId : "+teamId);
+      // Find the index of the playerId in the playerIds array
+      const playerIndex = playerIds.indexOf(playerId);
+
+      if (playerIndex !== -1) {
+          // Update the teamId at the corresponding index in the teamList array
+          teamList[playerIndex] = teamId;
+
+          // Update the game document with the modified teamList
+          await updateDoc(gameRef, { team: teamList });
+
+          console.log('Team updated successfully.');
+      } else {
+          console.log('Player not found in the playerIds array.');
+          return null;
+      }
+  } catch (error) {
+      console.error('Error updating player team:', error);
+      return null;
+  }
+}
+
 
 async function addPlayerToGame(gameId, playerId) { //works
     try {
@@ -386,6 +456,19 @@ app.get('/getPlayerIDList/:gameId', async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
+app.put('/updatePlayerTeam/:gameId/:playerId', async (req, res) => {
+  try {
+    const { gameId,playerId } = req.params;
+    const { teamId } = req.body;
+
+    await updatePlayerTeam(gameId,playerId,teamId);
+    } catch (error) {
+    console.error('Error updating player team:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 
 
 //Api call 

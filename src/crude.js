@@ -75,13 +75,28 @@ export async function startGame(enteredPseudonym, playerId, gameId) {
     }
 }
 
-//Useful functions
-export function getPlayerIdFromSessionStorage() {
-  return sessionStorage.getItem('player_id');
+export async function updatePlayerTeam(gameId, playerId, teamId) {
+  try {
+    const response = await axios.put(`http://localhost:4002/updatePlayerTeam/${gameId}/${playerId}`, { teamId });
+    console.log('Response Status:', response.status);
+    console.log('Response Data:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating player team:', error);
+    throw error;
+  }
 }
 
-export function setPlayerIdFromSessionStorage(playerId) {
-  sessionStorage.setItem('player_id', playerId);
+
+
+
+//Useful functions
+export function getFromSessionStorage(key) {
+  return sessionStorage.getItem(key);
+}
+
+export function setFromSessionStorage(key,value) {
+  sessionStorage.setItem(key, value);
 }  
 
 export function generateId() {
@@ -116,5 +131,7 @@ export function generate_soft_ID() {
 
   return id;
 }
+
+
 
 

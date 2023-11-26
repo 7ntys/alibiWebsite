@@ -13,15 +13,16 @@
 import GameOptions from "@/components/GameOptions";
 
 class Player {
-  constructor(name, pictureIndex) {
+  constructor(name, team,pictureIndex,id) {
     this.name = name;
     this.pictureIndex = pictureIndex;
-    this.team = 0;
+    this.team = team;
+    this.id = id;
   }
 }
 
 import PlayerProfile from "./PlayerProfile.vue"
-import {getPlayerIDList} from "../crude.js";
+import {} from "../crude.js";
 import io from 'socket.io-client';
 export default {
   name: "LobbyComponent",
@@ -33,21 +34,43 @@ export default {
   mounted() {
   console.log("Mounted come");
 
-  const socket = io('http://localhost:4002');
+  //Listeners 1 for playerList 
+
+  const socket = io('http://localhost:4002', { transports: ['websocket'], debug: true });
   socket.connect();
   
   // Emit the 'playerListUpdate' event to the server
-  socket.emit('playerListUpdate', { playerList: this.players });
+  socket.emit('playerListUpdate', { playerList: this.players, gameCode: this.gameCode});
   console.log("Emitting playerListUpdate event to the server");
   
   socket.on('playerListUpdate', ({ playerList }) => {
     console.log("Nouvelle valeur de player_list en temps réel", playerList);
     
     // Map the playerList to this.players
-    this.players = playerList.map(player => new Player(player.pseudo, 3));
+
+    for(let i = 0; i < playerList.length; i++){
+      console.log("playerList[i].playerId",playerList[i].playerId);
+    }
+    this.players = playerList.map(player => new Player(player.pseudo, player.team, 2,player.playerId));
+
+    for(let i = 0; i < this.players.length; i++){
+      console.log("Player :",i);
+      console.log("this.players[i].pseudo",this.players[i].name);
+      console.log("this.players[i].id",this.players[i].id);
+      console.log("this.players[i].team",this.players[i].team); 
+    }
   });
+
+
+
   
-  console.log("Listening to playerListUpdate event from the server");
+  // console.log("Listening to playerListUpdate event from the server");
+
+  //Listeners 2 for the Team Update
+  // Listen to the 'teamUpdate' event from the server
+ 
+
+
 },
 
 data() {
@@ -56,30 +79,30 @@ data() {
   };
 },
 
-methods: {
-  async retrievePlayerProfile() {
-  try {
-    // const temp = getPlayerIdFromSessionStorage();
-    // if (temp == null) {
-    //   this.$router.push({ name: 'Profile', params: { gameCode: this.gameCode } });
-    // }
+methods: {}
+//   async retrievePlayerProfile() {
+//   try {
+//     // const temp = getPlayerIdFromSessionStorage();
+//     // if (temp == null) {
+//     //   this.$router.push({ name: 'Profile', params: { gameCode: this.gameCode } });
+//     // }
 
-    // Retrieve the initial player list
-    const playerList = await getPlayerIDList(this.gameCode);
+//     // Retrieve the initial player list
+//     const playerList = await getPlayerIDList(this.gameCode);
 
-    // Check if the player list has changed
-    if (JSON.stringify(playerList) !== JSON.stringify(this.players)) {
-      // Update your local players array
-      this.players = playerList.map(player => new Player(player.pseudo, 3));
-    }
+//     // Check if the player list has changed
+//     if (JSON.stringify(playerList) !== JSON.stringify(this.players)) {
+//       // Update your local players array
+//       this.players = playerList.map(player => new Player(player.pseudo, 3));
+//     }
 
-    console.log("PlayerList retrieved from the server:", playerList);
-    return playerList;  
-  } catch (error) {
-    console.error(error);
-  }
-},
-},
+//     console.log("PlayerList retrieved from the server:", playerList);
+//     return playerList;  
+//   } catch (error) {
+//     console.error(error);
+//   }
+// },
+// },
 };
  
 </script>

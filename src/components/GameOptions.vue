@@ -17,6 +17,8 @@
 </template>
 
 <script>
+import {} from "../crude.js";
+import io from 'socket.io-client';
 export default {
   name: "GameOptions",
   props: ["gameCode"],
@@ -24,6 +26,31 @@ export default {
     return{
       timer: 60,
     }
+  },
+  mounted(){
+
+  let gameSettings = {};
+
+  const socket = io('http://localhost:4002', { transports: ['websocket'], debug: true });
+  socket.connect();
+  socket.emit('GameSettings', { gameSettings: gameSettings, gameCode: this.gameCode  });
+  console.log("Emitting GameSettings event to the server");
+  
+  socket.on('GameSettings', ({ gameSettings }) => {
+    console.log("Nouvelle valeur de GameSettings en temps réel", gameSettings);
+
+    this.timer = gameSettings.alibiTime
+    
+
+  });
+
+
+
+
+
+
+
+
   },
   methods:{
     increment(){if (this.timer < 120) {this.timer += 10;}},
