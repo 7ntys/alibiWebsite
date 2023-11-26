@@ -40,7 +40,7 @@ export default {
   socket.connect();
   
   // Emit the 'playerListUpdate' event to the server
-  socket.emit('playerListUpdate', { playerList: this.players, gameCode: this.gameCode});
+  socket.emit('playerListUpdate', { playerList: this.players, gameId: this.gameCode});
   console.log("Emitting playerListUpdate event to the server");
   
   socket.on('playerListUpdate', ({ playerList }) => {

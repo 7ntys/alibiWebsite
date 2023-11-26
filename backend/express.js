@@ -45,6 +45,7 @@ io.on('connection', (socket) => {
 
   socket.on('playerListUpdate', (playerList,gameId) => {
     console.log('Client connected playerListUpdate');
+    gameId = "P9ITE2";
     // Listen for changes to player_list and emit them to the client
     const collectionRef = collection(db,'games');
     const docRef = doc(collectionRef,gameId);

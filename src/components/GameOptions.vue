@@ -33,7 +33,7 @@ export default {
 
   const socket = io('http://localhost:4002', { transports: ['websocket'], debug: true });
   socket.connect();
-  socket.emit('GameSettings', { gameSettings: gameSettings, gameCode: this.gameCode  });
+  socket.emit('GameSettings', { gameSettings: gameSettings, gameId: this.gameCode  });
   console.log("Emitting GameSettings event to the server");
   
   socket.on('GameSettings', ({ gameSettings }) => {
