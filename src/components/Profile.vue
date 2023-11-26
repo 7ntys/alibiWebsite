@@ -64,7 +64,7 @@ export default {
       isLoaded:false,
       isAnim : false,
       username:"",
-      code: this.gameCode,
+      code: this.gameCode.trim("lobby/"),
       dropArrowSocial: require("../assets/Arrow Down.png"),
       dropArrowRules: require("../assets/Arrow Down.png"),
       showRules : false,
