@@ -45,8 +45,11 @@
     </Transition>
   </div>
 </template>
-
 <script>
+// eslint-disable-next-line no-unused-vars
+/* eslint-disable */
+
+import {startGame,getPlayerIdFromSessionStorage,setPlayerIdFromSessionStorage,generateId, getPlayerIDList} from "../crude.js";
 import PictureCarousel from "@/components/PictureCarousel";
 import RulesComponent from "@/components/Rules";
 import SocialComponent from "@/components/SocialComponent.vue";
@@ -61,7 +64,7 @@ export default {
       isLoaded:false,
       isAnim : false,
       username:"",
-      code: this.gameCode,
+      code: this.gameCode.trim("lobby/"),
       dropArrowSocial: require("../assets/Arrow Down.png"),
       dropArrowRules: require("../assets/Arrow Down.png"),
       showRules : false,
@@ -70,22 +73,47 @@ export default {
     }
   },
   methods:{
-    createGame(event){
-      event.preventDefault()
-      if (this.showCreate) {
-        //Generate a random number with 6 digits :
-        this.code = Math.floor(100000 + Math.random() * 900000);
-        //Write gameCode in localstorage under the name : "gameCode"
-        localStorage.setItem("gameCode", this.code)
-        this.$router.push({name: 'Lobby'})
+    async create_game() {
+      const username = this.username;
+      if (username.trim() === "") {
+      alert("Please enter a pseudonym.");
+    } else {
+      try {
+        console.log("username : " + username);
+        let temp = getPlayerIdFromSessionStorage();
+        if(temp == null){temp = generateId();}
+        const playerId = temp;
+        console.log("player id init by function after : "+playerId);
+        setPlayerIdFromSessionStorage(playerId); 
+        console.log("playerId storage : " + getPlayerIdFromSessionStorage());
+        await startGame(username,playerId);
+        console.log("playerId : " + playerId);
+        console.log('Game creatd');
+        // Additional logic after creating the player
+      } catch (error) {
+        console.error(error);
       }
-    },
-    joinGame(event){
+    }},
+
+    async joinGame(event) {
       event.preventDefault()
-      console.log("hey")
-      /*Go to /lobby url*/
-      if (this.showCreate && this.showJoin) {
-        this.$router.push({name: 'Lobby'})
+      try {
+        console.log("Before calling getPlayerIDList");
+        let playerList = await getPlayerIDList("jwBa43gDqOQyP87d3eyC");
+        console.log("Test");
+        console.log(playerList);
+        // const test = await getPlayerById("17005079277133484");
+        // console.log(test);
+
+        if (playerList && playerList.length > 0) {
+          console.log('Player List:', playerList);
+          console.log('First player ID:', playerList[0].playerId);
+          // Additional logic after creating the player
+        } else {
+          console.log('Player list is empty or null');
+        }
+      } catch (error) {
+        console.error(error);
       }
     },
     ToggleDropdownRules(){
@@ -144,6 +172,7 @@ export default {
     this.ToggleDropdownRules()
   }
 }
+
 </script>
 
 <style scoped>

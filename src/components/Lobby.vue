@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="gameOptions">
-      <GameOptions></GameOptions>
+      <GameOptions :game-code="gameCode"></GameOptions>
     </div>
     <div class="playerProfile">
       <PlayerProfile v-for="player in players" :key="player.name" :playerGiven="player"></PlayerProfile>
@@ -24,6 +24,7 @@ import PlayerProfile from "./PlayerProfile.vue"
 
 export default {
   name: "LobbyComponent",
+  props:["gameCode"],
   components: {
     GameOptions,
     PlayerProfile
@@ -62,6 +63,7 @@ export default {
   grid-gap: 20px;
   width:30%;
   margin: 5% 5%;
+  transition: 0.2s;
 }
 .container{
   background: #2c3e50;
@@ -77,6 +79,7 @@ export default {
   border-radius: 20px;
   /*Zoom*/
   transform: scale(1.1);
+  transition: 0.4s;
 }
 @media only screen and (max-width: 600px) {
   .container{

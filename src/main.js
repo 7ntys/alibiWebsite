@@ -7,10 +7,11 @@ import Alibi from "@/components/Alibi";
 import Questions from "@/components/Questions";
 import ComparaisonView from "@/components/ComparaisonView";
 import Podium from "@/components/Podium.vue";
+
 //Use vue router to create routes :
 const routes = [
     { path: '/:gameCode?', component: Profile,name:'Profile',props:true},
-    { path: '/lobby', component: Lobby,name:'Lobby' },
+    { path: '/lobby:gameCode', component: Lobby,name:'Lobby',props: true },
     {path: '/alibi/:timerPassed',component: Alibi,name:'Alibi',props:true},
     {path: '/questions',component: Questions,name:'Questions'},
     {path: '/comparaison',component: ComparaisonView,name:'ComparaisonView'},
@@ -22,3 +23,6 @@ const router = createRouter({
     routes,
 })
 createApp(App).use(router).mount('#app')
+
+
+  
