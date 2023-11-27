@@ -14,7 +14,7 @@
           <TextFieldComponent v-model="code" label="Game Code" limit="6"></TextFieldComponent>
         </div>
         <button :class="{'greyButton':!this.showJoin}" @click="joinGame">Join Game</button>
-        <button :class="{'greyButton':!this.showCreate}" @click="createGame">Create Game</button>
+        <button :class="{'greyButton':!this.showCreate}" @click="create_game">Create Game</button>
       </form>
     </div>
     <div class="dropdowncontainer">
@@ -49,7 +49,7 @@
 // eslint-disable-next-line no-unused-vars
 /* eslint-disable */
 
-import {startGame,getPlayerIdFromSessionStorage,setPlayerIdFromSessionStorage,generateId, getPlayerIDList} from "../crude.js";
+import {startGame,getFromSessionStorage,setFromSessionStorage,generateId, getPlayerIDList,generate_soft_ID,createPlayer,addPlayerToGame} from "../crude.js";
 import PictureCarousel from "@/components/PictureCarousel";
 import RulesComponent from "@/components/Rules";
 import SocialComponent from "@/components/SocialComponent.vue";
@@ -73,38 +73,53 @@ export default {
     }
   },
   methods:{
-    async create_game() {
+    async create_game(event) {
+      event.preventDefault();
       const username = this.username;
       if (username.trim() === "") {
       alert("Please enter a pseudonym.");
     } else {
       try {
+        const gameId = generate_soft_ID();
+        console.log("game_id : " + gameId);
         console.log("username : " + username);
-        let temp = getPlayerIdFromSessionStorage();
+        let temp = getFromSessionStorage("player_id");
         if(temp == null){temp = generateId();}
         const playerId = temp;
         console.log("player id init by function after : "+playerId);
-        setPlayerIdFromSessionStorage(playerId); 
-        console.log("playerId storage : " + getPlayerIdFromSessionStorage());
-        await startGame(username,playerId);
+        setFromSessionStorage("player_id",playerId); 
+        setFromSessionStorage("game_id",gameId);
+        console.log("playerId storage : " + getFromSessionStorage("player_id"));
+        await startGame(username,playerId,gameId);
         console.log("playerId : " + playerId);
         console.log('Game creatd');
-        // Additional logic after creating the player
+        this.$router.push({name:'Lobby',params:{gameCode:gameId}});
       } catch (error) {
         console.error(error);
       }
     }},
 
     async joinGame(event) {
-      event.preventDefault()
-      try {
-        console.log("Before calling getPlayerIDList");
-        let playerList = await getPlayerIDList("jwBa43gDqOQyP87d3eyC");
-        console.log("Test");
-        console.log(playerList);
-        // const test = await getPlayerById("17005079277133484");
-        // console.log(test);
 
+      event.preventDefault();
+  try {
+    let temp = getFromSessionStorage("player_id");
+      if(temp == null){temp = generateId();}
+    const playerId = temp;
+    setFromSessionStorage("player_id",playerId);
+    setFromSessionStorage("game_id",this.gameCode);
+    console.log("playerId storage 2 : " + getFromSessionStorage("player_id"));
+    await Promise.all([
+    createPlayer(this.username, 0, playerId),
+    addPlayerToGame(this.gameCode, playerId),
+    this.$router.push({name:'Lobby',params:{gameCode:this.gameCode}})
+  ]);
+ 
+    
+  } catch (error) {
+    console.error(error);
+  }
+},
         if (playerList && playerList.length > 0) {
           console.log('Player List:', playerList);
           console.log('First player ID:', playerList[0].playerId);

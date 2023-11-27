@@ -20,6 +20,8 @@
 </template>
 
 <script>
+import {updateGameSettings} from "../crude.js";
+import io from 'socket.io-client';
 import Notify from 'simple-notify'
 import 'simple-notify/dist/simple-notify.min.css'
 import OptionCard from "@/components/OptionCard.vue";
@@ -53,11 +55,36 @@ export default {
           {name: "Vanish", value:false, image: require("../assets/Vanish Effect.png")},
           {name: "Fire",value:false, image: require("../assets/Fire Effect.png")}
       ],
+
     }
   },
+  mounted(){
+
+
+  const socket = io('http://localhost:4002', { transports: ['websocket'], debug: true });
+  socket.connect();
+  socket.emit('GameSettings', (this.gameCode));
+  console.log("Emitting GameSettings event to the server");
+  
+  socket.on('GameSettings', ({ gameSettings }) => {
+    console.log("Nouvelle valeur de GameSettings en temps réel", gameSettings);
+
+    this.timer = gameSettings.alibiTime
+    
+
+  });
+
+
+
+
+
+
+
+
+  },
   methods:{
-    increment(){if (this.timer < 120) {this.timer += 10;}},
-    decrement(){if(this.timer > 10){this.timer -=10}},
+    async increment(){if (this.timer < 120) {this.timer += 10;await updateGameSettings(this.gameCode, [this.timer,null,null,null,null])}},
+    async decrement(){if(this.timer > 10){this.timer -=10;await updateGameSettings(this.gameCode, [this.timer,null,null,null,null])}},
     startGame(){
       //Pass the timer to the Alibi Component :
       if (this.checkTeam()) {

@@ -1,4 +1,6 @@
 import axios from 'axios';
+// import io from 'socket.io-client';
+
 //Note : desfois l'ordre de placement des fonctions des crudes changent le fonctionnement du programme 
 
 
@@ -7,9 +9,7 @@ export async function getPlayerIDList(gameId) {
       const response = await axios.get(`http://localhost:4002/getPlayerIDList/${gameId}`);
       console.log('Response Status:', response.status);
       console.log('Response Data:', response.data);
-      const playerInfoArray = response.data;
-      console.log('Player Info Array:', playerInfoArray);
-      return playerInfoArray;
+      return response.data;
   } catch (error) {
       console.error('Error fetching player ID list:', error);
       throw error;
@@ -30,9 +30,9 @@ export async function createPlayer(pseudo,team,playerId) {
     }
 }
 
-export async function createGameDocument() {
+export async function createGameDocument(gameId) {
     try {
-      const response = await axios.post('http://localhost:4002/createGameDocument');
+      const response = await axios.post('http://localhost:4002/createGameDocument', {gameId:gameId});
       console.log(response.data);
     } catch (error) {
       console.error(error);
@@ -53,19 +53,20 @@ export async function getPlayerById(playerId) {
 }
 
 export async function addPlayerToGame(gameId, playerId) {
-    try {
-        const response = await axios.post(`http://localhost:4002/addPlayerToGame/${gameId}/${playerId}`);
-        console.log(response.data);  
-        return response.data;
-    } catch (error) {
-        console.error('Error:', error);
-        throw error;
-    }
+  try {
+    const response = await axios.post(`http://localhost:4002/addPlayerToGame/${gameId}/${playerId}`);
+    console.log('Response Status:', response.status);
+    console.log('Response Data:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error adding player to the game:', error);
+    throw error;
+  }
 }
 
-export async function startGame(enteredPseudonym, playerId) {
+export async function startGame(enteredPseudonym, playerId, gameId) {
     try {
-        const response = await axios.post('http://localhost:4002/startGame', { enteredPseudonym, playerId });
+        const response = await axios.post('http://localhost:4002/startGame', { enteredPseudonym, playerId, gameId });
         console.log(response.data);
         return response.data;
     } catch (error) {
@@ -74,13 +75,49 @@ export async function startGame(enteredPseudonym, playerId) {
     }
 }
 
-//Useful functions
-export function getPlayerIdFromSessionStorage() {
-  return sessionStorage.getItem('player_id');
+export async function updatePlayerTeam(gameId, playerId, teamId) {
+  try {
+    const response = await axios.put(`http://localhost:4002/updatePlayerTeam/${gameId}/${playerId}`, { teamId });
+    console.log('Response Status:', response.status);
+    console.log('Response Data:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating player team:', error);
+    throw error;
+  }
 }
 
-export function setPlayerIdFromSessionStorage(playerId) {
-  sessionStorage.setItem('player_id', playerId);
+export async function updateGameSettings(gameId, array) {
+  try {
+    const response = await axios.post(`http://localhost:4002/updateGameSettings/${gameId}`, { array });
+    console.log('Response Status:', response.status);
+    console.log('Response Data:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating game settings:', error);
+    throw error;
+  }
+}
+
+export async function createAlibiDocuments(alibis, nextId) {
+  try {
+    const response = await axios.post('http://localhost:3000/createAlibiDocuments', { alibis, nextId });
+    console.log('Response Status:', response.status);
+    console.log('Response Data:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating alibi documents:', error);
+    throw error;
+  }
+}
+
+//Useful functions
+export function getFromSessionStorage(key) {
+  return sessionStorage.getItem(key);
+}
+
+export function setFromSessionStorage(key,value) {
+  sessionStorage.setItem(key, value);
 }  
 
 export function generateId() {
@@ -94,5 +131,28 @@ export function generateId() {
   console.log("unique  id : "+uniqueId);
   return uniqueId;
 }
+
+export function generate_soft_ID() {
+  // Définir les caractères possibles
+  const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+  // Longueur de l'ID que vous souhaitez générer
+  const longueurID = 6;
+
+  let id = '';
+
+  // Générer l'ID en bouclant sur la longueur spécifiée
+  for (let i = 0; i < longueurID; i++) {
+    // Sélectionner un caractère aléatoire
+    const caractereAleatoire = caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+
+    // Ajouter le caractère à l'ID
+    id += caractereAleatoire;
+  }
+
+  return id;
+}
+
+
 
 
