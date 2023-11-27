@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="gameOptions">
-      <GameOptions></GameOptions>
+      <GameOptions :gameCode="gameCode"></GameOptions>
     </div>
     <div class="playerProfile">
       <PlayerProfile v-for="player in players" :key="player.name" :playerGiven="player"></PlayerProfile>
@@ -13,41 +13,100 @@
 import GameOptions from "@/components/GameOptions";
 
 class Player {
-  constructor(name, pictureIndex) {
+  constructor(name, team,pictureIndex,id) {
     this.name = name;
     this.pictureIndex = pictureIndex;
-    this.team = 0;
+    this.team = team;
+    this.id = id;
   }
 }
 
 import PlayerProfile from "./PlayerProfile.vue"
-
+import {} from "../crude.js";
+import io from 'socket.io-client';
 export default {
   name: "LobbyComponent",
+  props:["gameCode"],
   components: {
     GameOptions,
     PlayerProfile
   },
   mounted() {
-    this.retrievePlayerProfile()
-  },
-  data(){
-    return{
-      players : [],
+  console.log("Mounted come");
+
+  //Listeners 1 for playerList 
+
+  const socket = io('http://localhost:4002', { transports: ['websocket'], debug: true });
+  socket.connect();
+  
+  // Emit the 'playerListUpdate' event to the server
+  console.log("GameCode : ",this.gameCode);
+  socket.emit('playerListUpdate', (this.gameCode));
+  console.log("GameCode 2: ",this.gameCode);
+  console.log("Emitting playerListUpdate event to the server");
+  
+  socket.on('playerListUpdate', ({ playerList }) => {
+    console.log("Nouvelle valeur de player_list en temps réel", playerList);
+    
+    // Map the playerList to this.players
+
+    for(let i = 0; i < playerList.length; i++){
+      console.log("playerList[i].playerId",playerList[i].playerId);
     }
-  },
-  methods:{
-    retrievePlayerProfile(){
-      //TODO : Retrieve player from firebase database that are present in the lobby :
-      //Store in a Player object (including name and profile picture index), then in an array
-      console.log("Bonjour")
-      this.players.push(new Player("Player1",2))
-      this.players.push(new Player("Player2",1))
-      this.players.push(new Player("Player3",3))
-      this.players.push(new Player("Player4",2))
+    this.players = playerList.map(player => new Player(player.pseudo, player.team, 2,player.playerId));
+
+    for(let i = 0; i < this.players.length; i++){
+      console.log("Player :",i);
+      console.log("this.players[i].pseudo",this.players[i].name);
+      console.log("this.players[i].id",this.players[i].id);
+      console.log("this.players[i].team",this.players[i].team); 
     }
-  }
-}
+  });
+
+
+
+  
+  // console.log("Listening to playerListUpdate event from the server");
+
+  //Listeners 2 for the Team Update
+  // Listen to the 'teamUpdate' event from the server
+ 
+
+
+},
+
+data() {
+  return {
+    players: [],
+  };
+},
+
+methods: {}
+//   async retrievePlayerProfile() {
+//   try {
+//     // const temp = getPlayerIdFromSessionStorage();
+//     // if (temp == null) {
+//     //   this.$router.push({ name: 'Profile', params: { gameCode: this.gameCode } });
+//     // }
+
+//     // Retrieve the initial player list
+//     const playerList = await getPlayerIDList(this.gameCode);
+
+//     // Check if the player list has changed
+//     if (JSON.stringify(playerList) !== JSON.stringify(this.players)) {
+//       // Update your local players array
+//       this.players = playerList.map(player => new Player(player.pseudo, 3));
+//     }
+
+//     console.log("PlayerList retrieved from the server:", playerList);
+//     return playerList;  
+//   } catch (error) {
+//     console.error(error);
+//   }
+// },
+// },
+};
+ 
 </script>
 
 <style scoped>

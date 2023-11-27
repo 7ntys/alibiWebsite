@@ -6,6 +6,7 @@
 </template>
 
 <script>
+import {getFromSessionStorage,updatePlayerTeam} from "../crude.js";
 export default {
   name: "PlayerProfile",
   props:["playerGiven"],
@@ -36,9 +37,15 @@ export default {
         timer = setTimeout(func, delay);
       };
     },
-    CallDb(){
+    async CallDb(){
+      try {
+        console.log("CalltoDb")
       //TODO : update to Db after change only if user didn't click for 1 second :
-      console.log("update to db")
+      await updatePlayerTeam(getFromSessionStorage("game_id"),getFromSessionStorage("player_id"),this.player.team);
+      } catch (error) {
+        console.log(error);
+      }
+
     }
   }
 }
