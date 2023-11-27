@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="gameOptions">
-      <GameOptions :gameCode="gameCode"></GameOptions>
+      <GameOptions :game-code="gameCode"></GameOptions>
     </div>
     <div class="playerProfile">
       <PlayerProfile v-for="player in players" :key="player.name" :playerGiven="player"></PlayerProfile>
@@ -121,6 +121,7 @@ methods: {}
   grid-gap: 20px;
   width:30%;
   margin: 5% 5%;
+  transition: 0.2s;
 }
 .container{
   background: #2c3e50;
@@ -136,6 +137,7 @@ methods: {}
   border-radius: 20px;
   /*Zoom*/
   transform: scale(1.1);
+  transition: 0.4s;
 }
 @media only screen and (max-width: 600px) {
   .container{

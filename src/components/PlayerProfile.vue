@@ -58,6 +58,7 @@ export default {
   border-radius: 20px 20px 20px 20px;
   width: 100%;
   box-shadow: black 0 0 10px;
+  transition: 0.2s;
 }
 .containerProfile img{
   width: 50%;
