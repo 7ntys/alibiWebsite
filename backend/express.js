@@ -20,7 +20,7 @@ const port = 4002;
 //Firebase init =>//
 const firebase = require('firebase/firestore');
 const { initializeApp } = require('firebase/app');
-const { getFirestore, collection, doc, setDoc, updateDoc, getDoc, onSnapshot } = require('firebase/firestore');
+const { getFirestore, collection, doc, setDoc, updateDoc, getDoc, onSnapshot,getDocs } = require('firebase/firestore');
 
 
 const firebaseConfig = {
@@ -43,9 +43,9 @@ const db = getFirestore(fire_app);
 io.on('connection', (socket) => {
   
 
-  socket.on('playerListUpdate', (playerList,gameId) => {
+  socket.on('playerListUpdate', (gameId) => {
     console.log('Client connected playerListUpdate');
-    gameId = "P9ITE2";
+    console.log("gameId :",gameId);
     // Listen for changes to player_list and emit them to the client
     const collectionRef = collection(db,'games');
     const docRef = doc(collectionRef,gameId);
@@ -93,8 +93,9 @@ io.on('connection', (socket) => {
     });
   });
 
-  socket.on('GameSettings', (gameSettings,gameId) => {
+  socket.on('GameSettings', (gameId) => {
     console.log('Client connected GameSettings');
+
     // Listen for changes to player_list and emit them to the client
     const collectionRef = collection(db,'games');
     const docRef = doc(collectionRef,gameId);
@@ -178,18 +179,16 @@ async function createGameDocument(gameId) { //works
       console.log("Game IDDDDD :"+gameId);
       const documentRef = firebase.collection(db, "games");
       const newDocRef = firebase.doc(documentRef, gameId);
-      
       const gameData = {
         player_list: [],
         team:[0,0,0,0],
-        alibiTime: 60,
         started: false,
-        gameSettings:{"alibiTime":60,
-          "tsunami":"off",
-          "fire":"off",
-          "lamp":"off",
-          "hidden_chrono":"off"}
-      };
+        gameSettings:{"alibiTime":60,"tsunami":"off","fire":"off","lamp":"off","hidden_chrono":"off"},
+        team1_alibi:await getRandomAlibi(),
+        team2_alibi:await getRandomAlibi() 
+        
+        
+        };
   
       await firebase.setDoc(newDocRef, gameData);
   
@@ -200,6 +199,38 @@ async function createGameDocument(gameId) { //works
     //   callback('Error creating game document: ' + error, null, null);
     }
 }
+
+async function createAlibiDocuments(alibis,nextId) {
+  try {
+    const collectionRef = firebase.collection(db, "alibi");
+
+    // Obtenez le plus grand ID existant dans la collection
+    // const snapshot = await firebase.getDocs(collectionRef.orderBy("id", "desc").limit(1));
+   // Si la collection est vide, commencez par 1
+
+    // if (!snapshot.empty) {
+    //   const lastDocument = snapshot.docs[0].data();
+    //   nextId = lastDocument.id + 1;
+    // }
+
+    // Ajoutez les nouveaux alibis avec les nouveaux ID
+    for (const alibi of alibis) {
+      const newDocRef = firebase.doc(collectionRef, nextId.toString());
+      await firebase.setDoc(newDocRef, alibi);
+      nextId++; // Incrémente l'ID pour le prochain alibi
+    }
+
+    console.log('Alibi documents created successfully');
+  } catch (error) {
+    console.error('Error creating alibi documents:', error);
+  }
+}
+
+
+
+
+
+
 
 async function getPlayerById(playerId) { //works
     try {
@@ -261,6 +292,35 @@ async function updatePlayerTeam(gameId, playerId, teamId) {
   }
 }
 
+async function updateGameSettings(gameId,array) { //works
+  try {
+    const gamesCollection = firebase.collection(db,'games');
+    const gameRef = firebase.doc(gamesCollection, gameId);
+    const docSnapshot = await firebase.getDoc(gameRef);
+
+    
+
+    if (docSnapshot.exists()) {
+      const gameData = docSnapshot.data().gameSettings;
+
+      if(array[0] != null){gameData.alibiTime = array[0];}
+      if(array[1] != null){gameData.fire = array[1];}
+      if(array[2] != null){gameData.hidden_chrono = array[2];}
+      if(array[3] != null){gameData.lamp = array[3];}
+      if(array[4] != null){gameData.tsunami = array[4];}
+
+
+      await updateDoc(gameRef, { gameSettings: gameData });
+
+      console.log('GameSettings updated successfully.');
+
+      
+    }
+  } catch (error) {
+    console.error('Error fetching or updating game document:', error);
+  //   callback(error, null);
+  }
+}
 
 async function addPlayerToGame(gameId, playerId) { //works
     try {
@@ -364,6 +424,36 @@ async function getPlayerIDList(gameId) {
   }
   
 }
+
+async function getRandomAlibi() {
+  try {
+    const collectionRef = collection(db, "alibi");
+    const snapshot = await getDocs(collectionRef);
+    const totalDocuments = snapshot.size;
+
+    const randomIndex = Math.floor(Math.random() * totalDocuments);
+    console.log("random index : "+randomIndex);
+
+    const randomDocument = snapshot.docs[randomIndex];
+
+    if (randomDocument) {
+      const data = randomDocument.data();
+      const alibi = { "text": data.text, "questions": [] };
+
+      const randomQuestions = data.questions.sort(() => Math.random() - 0.5).slice(0, 8);
+      alibi.questions = randomQuestions;
+
+      return alibi;
+    } else {
+      console.log("Aucun document trouvé.");
+      return null;
+    }
+  } catch (error) {
+    console.error("Erreur lors de la récupération de l'alibi :", error);
+    throw error;
+  }
+}
+
 
 //End of Firebase logic//
 
@@ -470,7 +560,36 @@ app.put('/updatePlayerTeam/:gameId/:playerId', async (req, res) => {
   }
 });
 
+app.post('/updateGameSettings/:gameId', async (req, res) => {
+  try {
+    const { gameId } = req.params;
+    const { array } = req.body;
 
+    await updateGameSettings(gameId, array);
+    
+    res.status(200).json({ message: 'Game settings updated successfully' });
+  } catch (error) {
+    console.error('Error updating game settings:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.post('/createAlibiDocuments', async (req, res) => {
+  try {
+    const { alibis, nextId } = req.body;
+
+    if (!alibis || !Array.isArray(alibis) || alibis.length === 0 || typeof nextId !== 'number') {
+      return res.status(400).json({ error: 'Invalid request body' });
+    }
+
+    await createAlibiDocuments(alibis, nextId);
+    
+    res.status(200).json({ message: 'Alibi documents created successfully' });
+  } catch (error) {
+    console.error('Error creating alibi documents:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 //Api call 
 

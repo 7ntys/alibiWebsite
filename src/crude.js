@@ -87,8 +87,29 @@ export async function updatePlayerTeam(gameId, playerId, teamId) {
   }
 }
 
+export async function updateGameSettings(gameId, array) {
+  try {
+    const response = await axios.post(`http://localhost:4002/updateGameSettings/${gameId}`, { array });
+    console.log('Response Status:', response.status);
+    console.log('Response Data:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating game settings:', error);
+    throw error;
+  }
+}
 
-
+export async function createAlibiDocuments(alibis, nextId) {
+  try {
+    const response = await axios.post('http://localhost:3000/createAlibiDocuments', { alibis, nextId });
+    console.log('Response Status:', response.status);
+    console.log('Response Data:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error creating alibi documents:', error);
+    throw error;
+  }
+}
 
 //Useful functions
 export function getFromSessionStorage(key) {

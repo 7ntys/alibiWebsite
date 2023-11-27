@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import {} from "../crude.js";
+import {updateGameSettings} from "../crude.js";
 import io from 'socket.io-client';
 export default {
   name: "GameOptions",
@@ -29,11 +29,10 @@ export default {
   },
   mounted(){
 
-  let gameSettings = {};
 
   const socket = io('http://localhost:4002', { transports: ['websocket'], debug: true });
   socket.connect();
-  socket.emit('GameSettings', { gameSettings: gameSettings, gameId: this.gameCode  });
+  socket.emit('GameSettings', (this.gameCode));
   console.log("Emitting GameSettings event to the server");
   
   socket.on('GameSettings', ({ gameSettings }) => {
@@ -53,8 +52,8 @@ export default {
 
   },
   methods:{
-    increment(){if (this.timer < 120) {this.timer += 10;}},
-    decrement(){if(this.timer > 10){this.timer -=10}},
+    async increment(){if (this.timer < 120) {this.timer += 10;await updateGameSettings(this.gameCode, [this.timer,null,null,null,null])}},
+    async decrement(){if(this.timer > 10){this.timer -=10;await updateGameSettings(this.gameCode, [this.timer,null,null,null,null])}},
     startGame(){
       //Pass the timer to the Alibi Component :
       if (this.checkTeam()) {
