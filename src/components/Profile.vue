@@ -100,6 +100,7 @@ export default {
     }},
 
     async joinGame(event) {
+
       event.preventDefault();
   try {
     let temp = getFromSessionStorage("player_id");
@@ -113,15 +114,23 @@ export default {
     addPlayerToGame(this.gameCode, playerId),
     this.$router.push({name:'Lobby',params:{gameCode:this.gameCode}})
   ]);
-
-
-    
+ 
     
   } catch (error) {
     console.error(error);
   }
 },
-
+        if (playerList && playerList.length > 0) {
+          console.log('Player List:', playerList);
+          console.log('First player ID:', playerList[0].playerId);
+          // Additional logic after creating the player
+        } else {
+          console.log('Player list is empty or null');
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    },
     ToggleDropdownRules(){
       if (this.showRules === false){
         if(this.showSocial){
