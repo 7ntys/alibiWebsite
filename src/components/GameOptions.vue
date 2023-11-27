@@ -50,37 +50,13 @@ export default {
       copied: false,
       share: "Share",
       gameMode:[
-          {name: "Ink Splash", value:false, image: require("../assets/Ink Effect.png")},
+          {name: "Ink Splash", value:false, image: require("../assets/Ink effect.png")},
           {name: "Tsunami", value:false, image: require("../assets/Wave Effect.png")},
           {name: "Vanish", value:false, image: require("../assets/Vanish Effect.png")},
           {name: "Fire",value:false, image: require("../assets/Fire Effect.png")}
       ],
 
     }
-  },
-  mounted(){
-
-
-  const socket = io('http://localhost:4002', { transports: ['websocket'], debug: true });
-  socket.connect();
-  socket.emit('GameSettings', (this.gameCode));
-  console.log("Emitting GameSettings event to the server");
-  
-  socket.on('GameSettings', ({ gameSettings }) => {
-    console.log("Nouvelle valeur de GameSettings en temps réel", gameSettings);
-
-    this.timer = gameSettings.alibiTime
-    
-
-  });
-
-
-
-
-
-
-
-
   },
   methods:{
     async increment(){if (this.timer < 120) {this.timer += 10;await updateGameSettings(this.gameCode, [this.timer,null,null,null,null])}},
@@ -136,6 +112,18 @@ export default {
     localStorage.setItem("Ink",false)
     localStorage.setItem("Vanish",false)
     localStorage.setItem("Fire",false)
+    const socket = io('http://localhost:4002', { transports: ['websocket'], debug: true });
+    socket.connect();
+    socket.emit('GameSettings', (this.gameCode));
+    console.log("Emitting GameSettings event to the server");
+
+    socket.on('GameSettings', ({ gameSettings }) => {
+      console.log("Nouvelle valeur de GameSettings en temps réel", gameSettings);
+
+      this.timer = gameSettings.alibiTime
+
+
+    });
   }
 }
 </script>

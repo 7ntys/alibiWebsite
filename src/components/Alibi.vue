@@ -7,7 +7,7 @@
     <div v-if="gameMode.ink === 'true'" style="">
       <TransitionGroup name="fade">
         <div v-for="index in parseInt(imagesIndex)" :key="index" class="group-Ink">
-          <img :style="positionArray[index-1]" src="../assets/Ink%20Effect.png">
+          <img :style="positionArray[index-1]" src="../assets/Ink%20effect.png">
         </div>
       </TransitionGroup>
     </div>

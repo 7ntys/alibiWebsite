@@ -100,37 +100,23 @@ export default {
     }},
 
     async joinGame(event) {
-
       event.preventDefault();
-  try {
-    let temp = getFromSessionStorage("player_id");
-      if(temp == null){temp = generateId();}
-    const playerId = temp;
-    setFromSessionStorage("player_id",playerId);
-    setFromSessionStorage("game_id",this.gameCode);
-    console.log("playerId storage 2 : " + getFromSessionStorage("player_id"));
-    await Promise.all([
-    createPlayer(this.username, 0, playerId),
-    addPlayerToGame(this.gameCode, playerId),
-    this.$router.push({name:'Lobby',params:{gameCode:this.gameCode}})
-  ]);
- 
-    
-  } catch (error) {
-    console.error(error);
-  }
-},
-        if (playerList && playerList.length > 0) {
-          console.log('Player List:', playerList);
-          console.log('First player ID:', playerList[0].playerId);
-          // Additional logic after creating the player
-        } else {
-          console.log('Player list is empty or null');
+      try {
+        let temp = getFromSessionStorage("player_id");
+          if(temp == null){temp = generateId();}
+        const playerId = temp;
+        setFromSessionStorage("player_id",playerId);
+        setFromSessionStorage("game_id",this.gameCode);
+        console.log("playerId storage 2 : " + getFromSessionStorage("player_id"));
+        await Promise.all([
+        createPlayer(this.username, 0, playerId),
+        addPlayerToGame(this.gameCode, playerId),
+        this.$router.push({name:'Lobby',params:{gameCode:this.gameCode}})
+      ]);
+        } catch (error) {
+          console.error(error);
         }
-      } catch (error) {
-        console.error(error);
-      }
-    },
+      },
     ToggleDropdownRules(){
       if (this.showRules === false){
         if(this.showSocial){
