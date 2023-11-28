@@ -15,20 +15,47 @@
 </template>
 
 <script>
+import {updateGameSettings,getFromSessionStorage} from "../crude.js";
 export default {
   name: "OptionCard",
   props:["gameName","gameImage"],
   data(){
     return{
-      checked: false,
+      checked : false
     }
   },
+  mounted(){
+    this.gameCode = getFromSessionStorage("game_id");
+    },
   methods:{
-    toggleCheck(){
-      this.checked = !this.checked
+    async toggleCheck(){
+      this.checked = !this.checked;
       this.$emit('voted',this.checked)
+      console.log("This.checked :",this.checked);
+      console.log("This.name :",this.gameName);
+      console.log("This code ",this.gameCode);
+
+      if(this.gameName === "Ink Splash"){
+        console.log("Ink Splash");
+        await updateGameSettings(this.gameCode, [null,null,this.checked,null,null]);
+      }
+      else if(this.gameName == "Tsunami"){
+        console.log("Tsunami")
+        await updateGameSettings(this.gameCode, [null,null,null,null,this.checked]);
+      }
+      else if(this.gameName == "Vanish"){
+        console.log("Vanish")
+        await updateGameSettings(this.gameCode, [null,null,null,this.checked,null]);
+      }
+      else if(this.gameName == "Fire"){
+        console.log("Fire");
+        await updateGameSettings(this.gameCode, [null,this.checked,null,null,null]);
+      }
+      else{
+        console.log("Error");
     }
   }
+}
 }
 </script>
 

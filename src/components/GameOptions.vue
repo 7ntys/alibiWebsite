@@ -64,10 +64,7 @@ export default {
     startGame(){
       //Pass the timer to the Alibi Component :
       if (this.checkTeam()) {
-        localStorage.setItem("Ink",this.gameMode[0].value)
-        localStorage.setItem("Tsunami",this.gameMode[1].value)
-        localStorage.setItem("Vanish",this.gameMode[2].value)
-        localStorage.setItem("Fire",this.gameMode[3].value)
+
         this.$router.push({name: 'Alibi', params: {timerPassed: this.timer}})
       }else{
         alert("Teams are not balanced")
@@ -119,8 +116,17 @@ export default {
 
     socket.on('GameSettings', ({ gameSettings }) => {
       console.log("Nouvelle valeur de GameSettings en temps réel", gameSettings);
+      localStorage.setItem("Tsunami",gameSettings.tsunami);
+      localStorage.setItem("Ink",gameSettings.ink);
+      localStorage.setItem("Vanish",gameSettings.vanish);
+      localStorage.setItem("Fire",gameSettings.fire);
+      console.log(this.gameMode[0].value)
+      this.gameMode[0].value = gameSettings.ink;
+      this.gameMode[1].value = gameSettings.tsunami;
+      this.gameMode[2].value = gameSettings.vanish;
+      this.gameMode[3].value = gameSettings.fire;
 
-      this.timer = gameSettings.alibiTime
+      this.timer = gameSettings.alibiTime;
 
 
     });

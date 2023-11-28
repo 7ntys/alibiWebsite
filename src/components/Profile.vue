@@ -64,7 +64,7 @@ export default {
       isLoaded:false,
       isAnim : false,
       username:"",
-      code: this.gameCode.trim("lobby/"),
+      code: this.gameCode,
       dropArrowSocial: require("../assets/Arrow Down.png"),
       dropArrowRules: require("../assets/Arrow Down.png"),
       showRules : false,
@@ -101,22 +101,27 @@ export default {
 
     async joinGame(event) {
       event.preventDefault();
-      try {
-        let temp = getFromSessionStorage("player_id");
-          if(temp == null){temp = generateId();}
-        const playerId = temp;
-        setFromSessionStorage("player_id",playerId);
-        setFromSessionStorage("game_id",this.gameCode);
-        console.log("playerId storage 2 : " + getFromSessionStorage("player_id"));
-        await Promise.all([
-        createPlayer(this.username, 0, playerId),
-        addPlayerToGame(this.gameCode, playerId),
-        this.$router.push({name:'Lobby',params:{gameCode:this.gameCode}})
-      ]);
-        } catch (error) {
-          console.error(error);
-        }
-      },
+  try {
+    let temp = getFromSessionStorage("player_id");
+      if(temp == null){temp = generateId();}
+    const playerId = temp;
+    setFromSessionStorage("player_id",playerId);
+    setFromSessionStorage("game_id",this.gameCode);
+    console.log("playerId storage 2 : " + getFromSessionStorage("player_id"));
+    await Promise.all([
+    createPlayer(this.username, 0, playerId),
+    addPlayerToGame(this.gameCode, playerId),
+    this.$router.push({name:'Lobby',params:{gameCode:this.gameCode}})
+  ]);
+
+
+    
+    
+  } catch (error) {
+    console.error(error);
+  }
+},
+
     ToggleDropdownRules(){
       if (this.showRules === false){
         if(this.showSocial){

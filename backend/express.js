@@ -183,7 +183,7 @@ async function createGameDocument(gameId) { //works
         player_list: [],
         team:[0,0,0,0],
         started: false,
-        gameSettings:{"alibiTime":60,"tsunami":"off","fire":"off","lamp":"off","hidden_chrono":"off"},
+        gameSettings:{"alibiTime":60,"tsunami":false,"fire":false,"vanish":false,"ink":false},
         team1_alibi:await getRandomAlibi(),
         team2_alibi:await getRandomAlibi() 
         
@@ -297,17 +297,21 @@ async function updateGameSettings(gameId,array) { //works
     const gamesCollection = firebase.collection(db,'games');
     const gameRef = firebase.doc(gamesCollection, gameId);
     const docSnapshot = await firebase.getDoc(gameRef);
-
+    console.log("array :",array);
     
 
     if (docSnapshot.exists()) {
+      console.log("entre");
       const gameData = docSnapshot.data().gameSettings;
+      console.log("gameData :",gameData);
 
       if(array[0] != null){gameData.alibiTime = array[0];}
-      if(array[1] != null){gameData.fire = array[1];}
-      if(array[2] != null){gameData.hidden_chrono = array[2];}
-      if(array[3] != null){gameData.lamp = array[3];}
-      if(array[4] != null){gameData.tsunami = array[4];}
+      if(array[1] != null){gameData.fire = array[1];console.log("Updating fire to ",array[1])}
+      if(array[2] != null){gameData.ink = array[2];console.log("Updating ink to ",array[2])}
+      if(array[3] != null){gameData.vanish = array[3];console.log("Updating vanish to ",array[3])}
+      if(array[4] != null){gameData.tsunami = array[4];console.log("Updating tsunami to ",array[4])}
+
+
 
 
       await updateDoc(gameRef, { gameSettings: gameData });
