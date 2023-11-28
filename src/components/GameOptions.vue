@@ -8,7 +8,7 @@
       <button class="leftButton" @click="increment">+</button>
     </div>
     <div class="gameMode" :style="gridStyle">
-      <option-card v-for="game in gameMode" :key="game.name" :game-name="game.name" :game-image="game.image" @voted="(value) => game.value = value"></option-card>
+      <option-card v-for="game in gameMode" :checked="game.value" :key="game.name" :game-name="game.name" :game-image="game.image" @voted="(value) => game.value = value"></option-card>
     </div>
     <div class="start">
       <button class="startButton" @click="startGame">Start Game</button>
@@ -116,6 +116,7 @@ export default {
 
     socket.on('GameSettings', ({ gameSettings }) => {
       console.log("Nouvelle valeur de GameSettings en temps réel", gameSettings);
+      console.log("Test avect tsunami "+gameSettings.vanish)
       localStorage.setItem("Tsunami",gameSettings.tsunami);
       localStorage.setItem("Ink",gameSettings.ink);
       localStorage.setItem("Vanish",gameSettings.vanish);
@@ -124,8 +125,8 @@ export default {
       this.gameMode[0].value = gameSettings.ink;
       this.gameMode[1].value = gameSettings.tsunami;
       this.gameMode[2].value = gameSettings.vanish;
+      console.log(this.gameMode[2].value)
       this.gameMode[3].value = gameSettings.fire;
-
       this.timer = gameSettings.alibiTime;
 
 

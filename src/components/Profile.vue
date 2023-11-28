@@ -106,12 +106,12 @@ export default {
       if(temp == null){temp = generateId();}
     const playerId = temp;
     setFromSessionStorage("player_id",playerId);
-    setFromSessionStorage("game_id",this.gameCode);
+    setFromSessionStorage("game_id",this.code);
     console.log("playerId storage 2 : " + getFromSessionStorage("player_id"));
     await Promise.all([
     createPlayer(this.username, 0, playerId),
-    addPlayerToGame(this.gameCode, playerId),
-    this.$router.push({name:'Lobby',params:{gameCode:this.gameCode}})
+    addPlayerToGame(this.code, playerId),
+    this.$router.push({name:'Lobby',params:{gameCode:this.code}})
   ]);
 
 

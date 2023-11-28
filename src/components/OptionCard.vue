@@ -2,7 +2,7 @@
   <div class="container">
     <div class="checkbox">
       <label class="checkbox-wrapper">
-        <input @click="toggleCheck" type="checkbox" class="checkbox-input"/>
+        <input :value="value" @click="toggleCheck" type="checkbox" class="checkbox-input" :checked="value"/>
         <span class="checkbox-tile">
 				<span class="checkbox-icon">
 					<img :src="gameImage">
@@ -18,38 +18,47 @@
 import {updateGameSettings,getFromSessionStorage} from "../crude.js";
 export default {
   name: "OptionCard",
-  props:["gameName","gameImage"],
+  props:["gameName","gameImage","checked"],
   data(){
     return{
-      checked : false
+      value : this.checked
+    }
+  },
+  computed:{
+    isChecked:function (){
+      if(this.value){return "checked"}
+      else{return ""}
     }
   },
   mounted(){
     this.gameCode = getFromSessionStorage("game_id");
     },
+  updated() {
+    this.value = this.checked
+  },
   methods:{
     async toggleCheck(){
-      this.checked = !this.checked;
-      this.$emit('voted',this.checked)
-      console.log("This.checked :",this.checked);
-      console.log("This.name :",this.gameName);
-      console.log("This code ",this.gameCode);
+      this.value = !this.value
+      this.$emit('voted',this.value)
+      console.log("This.checked :",this.value);
+      console.log("This.name :",this.value);
+      console.log("This code ",this.value);
 
       if(this.gameName === "Ink Splash"){
         console.log("Ink Splash");
-        await updateGameSettings(this.gameCode, [null,null,this.checked,null,null]);
+        await updateGameSettings(this.gameCode, [null,null,this.value,null,null]);
       }
       else if(this.gameName == "Tsunami"){
         console.log("Tsunami")
-        await updateGameSettings(this.gameCode, [null,null,null,null,this.checked]);
+        await updateGameSettings(this.gameCode, [null,null,null,null,this.value]);
       }
       else if(this.gameName == "Vanish"){
         console.log("Vanish")
-        await updateGameSettings(this.gameCode, [null,null,null,this.checked,null]);
+        await updateGameSettings(this.gameCode, [null,null,null,this.value,null]);
       }
       else if(this.gameName == "Fire"){
         console.log("Fire");
-        await updateGameSettings(this.gameCode, [null,this.checked,null,null,null]);
+        await updateGameSettings(this.gameCode, [null,this.value,null,null,null]);
       }
       else{
         console.log("Error");
