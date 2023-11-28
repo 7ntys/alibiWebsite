@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import {updateGameSettings} from "../crude.js";
+import {getFromSessionStorage, updateGameSettings} from "../crude.js";
 import io from 'socket.io-client';
 import Notify from 'simple-notify'
 import 'simple-notify/dist/simple-notify.min.css'
@@ -28,7 +28,7 @@ import OptionCard from "@/components/OptionCard.vue";
 export default {
   name: "GameOptions",
   components: {OptionCard},
-  props: ["gameCode"],
+  props: ["gameCode","players"],
   computed:{
     gridStyle(){
       //Si < 680 width :
@@ -63,7 +63,7 @@ export default {
     async decrement(){if(this.timer > 10){this.timer -=10;await updateGameSettings(this.gameCode, [this.timer,null,null,null,null])}},
     startGame(){
       //Pass the timer to the Alibi Component :
-      if (this.checkTeam()) {
+      if (this.checkTeam() && this.isGameMaster()) {
 
         this.$router.push({name: 'Alibi', params: {timerPassed: this.timer}})
       }else{
@@ -101,7 +101,26 @@ export default {
     },
     checkTeam(){
       //TODO : Check if the the team are well balanced :
-      return true
+      let blue = 0;
+      let red = 0;
+      this.players.forEach(player => {
+        if (player.team === 1) {
+          blue++;
+        }
+        else if(player.team === 2){
+          red++;
+        }
+      });
+      if(red === 2 && blue === 2){
+        return true
+      }
+      else{
+        return false
+      }
+    },
+    isGameMaster(){
+      //TODO : Check if the player is the game master :
+      return (this.players[0].id === getFromSessionStorage("player_id"))
     }
   },
   mounted() {

@@ -23,12 +23,20 @@ export default {
       player : this.playerGiven
     }
   },
+  updated() {
+    this.player = this.playerGiven
+  },
   methods:{
     changeTeam(){
       console.log("something")
-      this.player.team = this.player.team === 1 ? 2 : this.player.team === 2 ? 1 : 1
-      //update to Db after change only if user didn't click for 1 second :
-      this.debouncedCallDb()
+      if (getFromSessionStorage("player_id") === this.player.id) {
+        this.player.team = this.player.team === 1 ? 2 : this.player.team === 2 ? 1 : 1
+        //update to Db after change only if user didn't click for 1 second :
+        this.debouncedCallDb()
+      }
+      else{
+        console.log("You can't change other player's team")
+      }
     },
     debounce(func, delay){
       let timer;
