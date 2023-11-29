@@ -196,7 +196,7 @@ export async function updateGameSettings(gameId, array) {
 
 export async function updateComparaisonList(gameId, teamId,array) {
   try {
-    const response = await axios.post(`http://localhost:4002/updateGameSettings/${gameId}/${teamId}`, { array });
+    const response = await axios.post(`http://localhost:4002/updateComparaisonList/${gameId}/${teamId}`, { array });
     console.log('Response Status:', response.status);
     console.log('Response Data:', response.data);
     return response.data;

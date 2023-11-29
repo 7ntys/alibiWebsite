@@ -3,21 +3,19 @@
     <h2 class="question">{{question}}</h2>
     <div class="answer">
       <div class="profile">
-        <img :src="getImageFromPath(getPicture(player0))">
+        <img :src="(getPicture(player0))">
         <p class="username">{{getName(player0)}}</p>
       </div>
       <div class="profile">
-        <img :src="getImageFromPath(getPicture(player1))">
+        <img :src="(getPicture(player1))">
         <p class="username">{{getName(player1)}}</p>
       </div>
       <p class="answer0">{{answers0}}</p>
       <p class="answer1">{{answers1}}</p>
     </div>
     <div>
-      <button v-if="vote === 0 || vote === 3" @click="vote(0)"
-              :class="[vote === 0 ? 'dislikedAnim' : 'disliked']"><img src="../assets/Cross.png"></button>
-      <button v-if="vote === 1 || vote === 3" @click="Submitvote(1)"
-              :class="[vote === 1 ? 'likedAnim' : 'liked']"><img src="../assets/Check.png"></button>
+      <button v-if="vote === 0 || vote === 2" @click="Submitvote(0)" :class="[vote === 0 ? 'dislikedAnim' : 'disliked']"><img src="../assets/Cross.png"></button>
+      <button v-if="vote === 1 || vote === 2" @click="Submitvote(1)" :class="[vote === 1 ? 'likedAnim' : 'liked']"><img src="../assets/Check.png"></button>
     </div>
   </div>
 </template>
@@ -37,7 +35,7 @@ export default {
     Submitvote(value){
       if (value === this.vote) {
         console.log("reset")
-        value = 3
+        value = 2
         this.$emit('voteSubmitted', value)
       }
       else {
@@ -47,7 +45,7 @@ export default {
     },
     getPicture(player){
       if(player == null){return this.pictures[0]}
-      else{return  this.pictures[player.pictureIndex-1]}
+      else{return this.pictures[player.pictureIndex-1]}
     },
     getName(player){
       if(player == null){return "No name"}

@@ -244,8 +244,8 @@ async function createGameDocument(gameId) { //works
         gameSettings:{"alibiTime":10,"tsunami":false,"fire":false,"vanish":false,"ink":false,"started":false},
 
         answer:[{"0":"","1":"","2":"","3":"","4":""},{"0":"","1":"","2":"","3":"","4":""},{"0":"","1":"","2":"","3":"","4":""},{"0":"","1":"","2":"","3":"","4":""}],
-        team1_answer:[2,2,2,2],
-        team2_answer:[2,2,2,2],
+        team1_answer:[2,2,2,2,2],
+        team2_answer:[2,2,2,2,2],
 
         
 
@@ -660,7 +660,7 @@ async function getRandomAlibi() {
       const data = randomDocument.data();
       const alibi = { "text": data.text, "questions": [] };
 
-      const randomQuestions = data.questions.sort(() => Math.random() - 0.5).slice(0, 8);
+      const randomQuestions = data.questions.sort(() => Math.random() - 0.5).slice(0, 6);
       alibi.questions = randomQuestions;
 
       return alibi;
