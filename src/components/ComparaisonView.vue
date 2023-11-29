@@ -1,10 +1,10 @@
 <template>
   <div class="container">
     <div class="wrapper" v-if="turn === 0">
-      <ComparaisonCard @voteSubmitted="(value) => this.team1.vote[index-1] = value" v-for="index in 5" :key="index" :player0="team1.firstPlayer" :player1="team1.secondPlayer" :answers0="team1.answers0[index-1]" :answers1="team1.answers1[index-1]" :question="team1.questions[index-1]" :vote="team1.vote[index-1]"/>
+      <ComparaisonCard @voteSubmitted="(value) => vote(1,index-1,value)" v-for="index in 5" :key="index" :player0="team1.firstPlayer" :player1="team1.secondPlayer" :answers0="team1.answers0[index-1]" :answers1="team1.answers1[index-1]" :question="team1.questions[index-1]" :vote="team1.vote[index-1]"/>
     </div>
     <div class="wrapper" v-else>
-      <ComparaisonCard @voteSubmitted="(value) => this.team2.vote[index-1] = value" v-for="index in 5" :key="index" :player0="team2.firstPlayer" :player1="team2.secondPlayer" :answers0="team2.answers0[index-1]" :answers1="team2.answers1[index-1]" :question="team2.questions[index-1]" :vote="team2.vote[index-1]"/>
+      <ComparaisonCard @voteSubmitted="(value) => vote(1,index-1,value)" v-for="index in 5" :key="index" :player0="team2.firstPlayer" :player1="team2.secondPlayer" :answers0="team2.answers0[index-1]" :answers1="team2.answers1[index-1]" :question="team2.questions[index-1]" :vote="team2.vote[index-1]"/>
     </div>
     <button class="submit" @click="submit()">
       Done
@@ -14,7 +14,7 @@
 
 <script>
 import ComparaisonCard from "@/components/ComparaisonCard.vue";
-import { getPlayerIDList, getTeamList, getFromSessionStorage,getQuestionsbyTeam} from "@/crude";
+import {getPlayerIDList, getTeamList, getFromSessionStorage, getQuestionsbyTeam, updateComparaisonList} from "@/crude";
 
 import io from 'socket.io-client';
 
@@ -28,6 +28,8 @@ export default {
   console.log("playerIdList",playerIdList);
   const teamList =  await getTeamList(getFromSessionStorage("game_id"));
   console.log("teamList de merde",teamList);
+  this.team1.questions = await getQuestionsbyTeam(getFromSessionStorage("game_id"),1);
+  this.team2.questions = await getQuestionsbyTeam(getFromSessionStorage("game_id"),2);
  
   let all_info = {};
 
@@ -60,28 +62,6 @@ export default {
   socket.on('playersAnswers', ({ answer }) => {
   console.log("Nouvelle valeur de answer en temps réel : ", answer);
 
-
-
-
-    
-    
-  });
-
-  //Listeners Comparaison View
-
-  // await updateComparaisonList(getFromSessionStorage("game_id"),2,[null,null,null,1]);
-  socket.emit('ComparaisonListeners', (getFromSessionStorage("game_id")));
-  socket.on('ComparaisonListeners', ({ array }) => {
-  console.log("Nouvelle valeur de Comparaison Listeners en temps réel : ", array);
-  
-
-
-    
-    
-  });
-
-  
-
     answer.forEach((data,index) => {
       console.log("data",data);
       console.log("index",index)
@@ -110,8 +90,24 @@ export default {
         }
       }
     });
-    
+
   });
+
+  //Listeners Comparaison View
+
+  // await updateComparaisonList(getFromSessionStorage("game_id"),2,[null,null,null,1]);
+  socket.emit('ComparaisonListeners', (getFromSessionStorage("game_id")));
+  socket.on('ComparaisonListeners', ({ array }) => {
+  console.log("Nouvelle valeur de Comparaison Listeners en temps réel : ", array);
+    console.log("noiro de merde d'enculé",array)
+    for(let i=0;i<5;i++){
+      this.team1.vote.push(array[0][i])
+      this.team2.vote.push(array[1][i])
+      console.log(this.team1.vote)
+    }
+  });
+
+
 
 
     //TODO : Retrieve all answers and add a listener on it
@@ -119,22 +115,32 @@ export default {
   data(){
     return {
       turn: 0,
-      team1: {firstPlayer: null, secondPlayer: null, answers0: [], answers1: [], questions: [], vote: [0,0,0,0,0]},
-      team2: {firstPlayer: null, secondPlayer: null, answers0: [], answers1: [], questions: [], vote: [0,0,0,0,0]},
+      team1: {firstPlayer: null, secondPlayer: null, answers0: [], answers1: [], questions: [], vote: []},
+      team2: {firstPlayer: null, secondPlayer: null, answers0: [], answers1: [], questions: [], vote: []},
     }
   },
   methods:{
     retrieveAnswers(){
       //TODO : Retrieve all answers
     },
-    vote(value,question){
-      if (value === question.vote) {
-        console.log("reset")
-        question.vote = 3
+    async vote(team,index,value){
+      if(team === 1){
+        this.team1.vote[index] = value
       }
-      else {
-        question.vote = value
-        console.log(question)
+      else{
+        this.team2.vote[index] = value
+      }
+      let array = []
+      if(this.turn === 0){
+        console.log("ca",this.team1.vote)
+        this.team1.vote.forEach((value) => {
+          array.push(value)
+        })
+        console.log("CA 2 :",array)
+        await updateComparaisonList(getFromSessionStorage("game_id"),this.turn+1,this.team1.value)
+      }
+      else{
+        await updateComparaisonList(getFromSessionStorage("game_id"),this.turn+1,this.team2.vote)
       }
     },
     submit(){
