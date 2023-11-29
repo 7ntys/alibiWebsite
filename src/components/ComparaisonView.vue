@@ -14,7 +14,7 @@
 
 <script>
 import ComparaisonCard from "@/components/ComparaisonCard.vue";
-import { getPlayerIDList, getTeamList, getFromSessionStorage} from "@/crude";
+import { getPlayerIDList, getTeamList, getFromSessionStorage,getQuestionsbyTeam} from "@/crude";
 import io from 'socket.io-client';
 
 export default {
@@ -45,9 +45,11 @@ export default {
   console.log("all_info",all_info);
   const socket = io('http://localhost:4002', { transports: ['websocket'], debug: true });
   socket.connect();
+  
   socket.emit('playersAnswers', (getFromSessionStorage("game_id")));
   socket.on('playersAnswers', ({ answer }) => {
   console.log("Nouvelle valeur de answer en temps réel : ", answer);
+
 
 
     
