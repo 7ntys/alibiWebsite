@@ -1,9 +1,9 @@
 <template>
   <div class="container">
-    <div class="wrapper" v-if="turn === 0">
+    <div class="wrapper" v-if="turn === 0 && show">
       <ComparaisonCard @voteSubmitted="(value) => vote(1,index-1,value)" v-for="index in 5" :key="index" :player0="team1.firstPlayer" :player1="team1.secondPlayer" :answers0="team1.answers0[index-1]" :answers1="team1.answers1[index-1]" :question="team1.questions[index-1]" :vote="team1.vote[index-1]"/>
     </div>
-    <div class="wrapper" v-else>
+    <div class="wrapper" v-else-if="show">
       <ComparaisonCard @voteSubmitted="(value) => vote(2,index-1,value)" v-for="index in 5" :key="index" :player0="team2.firstPlayer" :player1="team2.secondPlayer" :answers0="team2.answers0[index-1]" :answers1="team2.answers1[index-1]" :question="team2.questions[index-1]" :vote="team2.vote[index-1]"/>
     </div>
     <button class="submit" @click="submit()">
@@ -69,36 +69,38 @@ export default {
   socket.emit('playersAnswers', (getFromSessionStorage("game_id")));
   socket.on('playersAnswers', ({ answer }) => {
   console.log("Nouvelle valeur de answer en temps réel : ", answer);
-
+    this.show = false
     answer.forEach((data,index) => {
       console.log("data",data);
       console.log("index",index)
       let player = all_info[`player${index + 1}`];
       if(player.team === 1){
-        if(this.team1.answers0.length === 0){
+        if(this.team1.answers0.length === 0 || this.team1.firstPlayer.id === player.id){
           for(let i=0;i<5;i++){
-            this.team1.answers0.push(data[i])
+            this.team1.answers0[i] = data[i]
           }
         }
         else{
           for(let i=0;i<5;i++){
-            this.team1.answers1.push(data[i])
+            this.team1.answers1[i] = data[i]
           }
         }
       }
       else {
-        if (this.team2.answers0 === 0) {
+        if (this.team2.answers0.length === 0 || this.team1.secondPlayer.id === player.id) {
           for(let i=0;i<5;i++){
-            this.team2.answers0.push(data[i])
+            this.team2.answers0[i] = data[i]
           }
         } else {
           for(let i=0;i<5;i++){
-            this.team2.answers1.push(data[i])
+            this.team2.answers1[i] = data[i]
           }
         }
       }
     });
-
+    console.log("truc machin",this.team1.answers0)
+    this.show = true
+    this.forceUpdate()
   });
 
   //Listeners Comparaison View
@@ -144,6 +146,7 @@ export default {
   },
   data(){
     return {
+      show: true,
       turn: 0,
       team1: {firstPlayer: null, secondPlayer: null, answers0: [], answers1: [], questions: [], vote: []},
       team2: {firstPlayer: null, secondPlayer: null, answers0: [], answers1: [], questions: [], vote: []},
@@ -152,6 +155,9 @@ export default {
   methods:{
     retrieveAnswers(){
       //TODO : Retrieve all answers
+    },
+    forceUpdate(){
+      this.$forceUpdate()
     },
     async vote(team,index,value){
       if(team === 1){
@@ -219,7 +225,7 @@ export default {
         })
       }
     },
-  }
+  },
 }
 </script>
 

@@ -35,7 +35,8 @@ export default {
   },
   methods:{
     Submitvote(value){
-      if(this.isGameMaster()){
+      let x = true
+      if(x){
         if (value === this.vote) {
           console.log("reset")
           value = 2
