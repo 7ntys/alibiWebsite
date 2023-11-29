@@ -6,6 +6,7 @@ app.use(express.json());
 const http = require('http').Server(app);
 require('dotenv').config({ path: 'config.env' });
 
+
 const io = require('socket.io')(http, {
   cors: {
     origin: "*", 

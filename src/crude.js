@@ -1,5 +1,4 @@
 import axios from 'axios';
-require('dotenv').config({ path: 'config.env' });
 // import io from 'socket.io-client';
 
 //Note : desfois l'ordre de placement des fonctions des crudes changent le fonctionnement du programme 
