@@ -46,19 +46,19 @@ export default {
 
       if(this.gameName === "Ink Splash"){
         console.log("Ink Splash");
-        await updateGameSettings(this.gameCode, [null,null,this.value,null,null]);
+        await updateGameSettings(this.gameCode, [null,null,this.value,null,null,null]);
       }
       else if(this.gameName == "Tsunami"){
         console.log("Tsunami")
-        await updateGameSettings(this.gameCode, [null,null,null,null,this.value]);
+        await updateGameSettings(this.gameCode, [null,null,null,null,this.value,null]);
       }
       else if(this.gameName == "Vanish"){
         console.log("Vanish")
-        await updateGameSettings(this.gameCode, [null,null,null,this.value,null]);
+        await updateGameSettings(this.gameCode, [null,null,null,this.value,null,null]);
       }
       else if(this.gameName == "Fire"){
         console.log("Fire");
-        await updateGameSettings(this.gameCode, [null,this.value,null,null,null]);
+        await updateGameSettings(this.gameCode, [null,this.value,null,null,null,null]);
       }
       else{
         console.log("Error");

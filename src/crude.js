@@ -16,6 +16,18 @@ export async function getPlayerIDList(gameId) {
   }
 }
 
+export async function getTeamList(gameId) {
+  try {
+      const response = await axios.get(`http://localhost:4002/getTeamList/${gameId}`);
+      console.log('Response Status:', response.status);
+      console.log('Response Data:', response.data);
+      return response.data;
+  } catch (error) {
+      console.error('Error fetching team list:', error);
+      throw error;
+  }
+}
+
 export async function createPlayer(pseudo,team,playerId) {
     try {
       const response = await axios.post('http://localhost:4002/createPlayer', {
@@ -52,6 +64,19 @@ export async function getPlayerById(playerId) {
     }
 }
 
+export async function getAlibibyTeam(gameId, teamId) {
+  try {
+    console.log("crude axios gameId : " + gameId + " teamId : " + teamId);
+    const response = await axios.get(`http://localhost:4002/getAlibibyTeam/${gameId}/${teamId}`);
+    response.data = JSON.stringify(response.data);
+    return JSON.parse(response.data);
+  } catch (error) {
+    console.error('Error:', error);
+    throw error;
+  }
+}
+
+
 export async function addPlayerToGame(gameId, playerId) {
   try {
     const response = await axios.post(`http://localhost:4002/addPlayerToGame/${gameId}/${playerId}`);
@@ -76,16 +101,69 @@ export async function startGame(enteredPseudonym, playerId, gameId) {
 }
 
 export async function updatePlayerTeam(gameId, playerId, teamId) {
-  try {
-    const response = await axios.put(`http://localhost:4002/updatePlayerTeam/${gameId}/${playerId}`, { teamId });
-    console.log('Response Status:', response.status);
-    console.log('Response Data:', response.data);
-    return response.data;
-  } catch (error) {
-    console.error('Error updating player team:', error);
-    throw error;
+  let retries = 0;
+  const MAX_RETRIES = 3;
+
+  while (retries < MAX_RETRIES) {
+    try {
+      const response = await axios.put(`http://localhost:4002/updatePlayerTeam/${gameId}/${playerId}`, { teamId }, {
+        timeout: 10000,
+      });
+
+      console.log('Response Status:', response.status);
+      console.log('Response Data:', response.data);
+
+      return response.data;
+    } catch (error) {
+      console.error('Error updating player team:', error);
+
+      if (axios.isCancel(error) || error.code === 'ECONNABORTED') {
+        // If the request was canceled or timed out, retry the request
+        console.log(`Retrying request (Attempt ${retries + 1})`);
+        retries++;
+      } else {
+        // If it's another type of error, stop retrying and throw the error
+        throw error;
+      }
+    }
   }
+
+  // If we reach here, it means the maximum number of retries has been reached
+  throw new Error(`Failed after ${MAX_RETRIES} retries`);
 }
+
+export async function updatePlayerAnswers(gameId, playerId, answer) {
+  let retries = 0;
+  const MAX_RETRIES = 3;
+
+  while (retries < MAX_RETRIES) {
+    try {
+      console.log("crude axios gameId : " + gameId + " playerId : " + playerId + " answer : " + answer);
+      const response = await axios.put(`http://localhost:4002/updatePlayerAnswers/${gameId}/${playerId}`, { answer }, {
+        timeout: 10000,
+      });
+      console.log('Response Status:', response.status);
+      console.log('Response Data:', response.data);
+
+      return response.data;
+    } catch (error) {
+      console.error('Error updating player answers:', error);
+
+      if (axios.isCancel(error) || error.code === 'ECONNABORTED') {
+        
+        console.log(`Retrying request (Attempt ${retries + 1})`);
+        retries++;
+      } else {
+        
+        throw error;
+      }
+    }
+  }
+
+  // If we reach here, it means the maximum number of retries has been reached
+  throw new Error(`Failed after ${MAX_RETRIES} retries`);
+}
+
 
 export async function updateGameSettings(gameId, array) {
   try {
@@ -110,6 +188,8 @@ export async function createAlibiDocuments(alibis, nextId) {
     throw error;
   }
 }
+
+
 
 //Useful functions
 export function getFromSessionStorage(key) {

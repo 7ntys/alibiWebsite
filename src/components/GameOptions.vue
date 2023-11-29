@@ -61,11 +61,13 @@ export default {
   methods:{
     async increment(){if (this.timer < 120) {this.timer += 10;await updateGameSettings(this.gameCode, [this.timer,null,null,null,null])}},
     async decrement(){if(this.timer > 10){this.timer -=10;await updateGameSettings(this.gameCode, [this.timer,null,null,null,null])}},
-    startGame(){
+    async startGame(){
       //Pass the timer to the Alibi Component :
-      if (this.checkTeam() && this.isGameMaster()) {
+      let x = true;
+      if (x) { //this.checkTeam() && this.isGameMaster()
 
-        this.$router.push({name: 'Alibi', params: {timerPassed: this.timer}})
+        await updateGameSettings(this.gameCode, [null,null,null,null,null,true])
+        // this.$router.push({name: 'Alibi', params: {timerPassed: this.timer}})
       }else{
         alert("Teams are not balanced")
       }
@@ -147,10 +149,16 @@ export default {
       console.log(this.gameMode[2].value)
       this.gameMode[3].value = gameSettings.fire;
       this.timer = gameSettings.alibiTime;
+      if(gameSettings.started){
+        this.$router.push({name: 'Alibi', params: {timerPassed: this.timer}})
+      }
 
 
     });
-  }
+  },
+  // beforeUnmount() {
+  //   socket.off('GameSettings', (this.gameCode));
+  // }
 }
 </script>
 

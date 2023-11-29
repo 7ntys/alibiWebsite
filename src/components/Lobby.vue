@@ -22,7 +22,7 @@ class Player {
 }
 
 import PlayerProfile from "./PlayerProfile.vue"
-import {} from "../crude.js";
+import {getFromSessionStorage, setFromSessionStorage} from "../crude.js";
 import io from 'socket.io-client';
 export default {
   name: "LobbyComponent",
@@ -52,8 +52,14 @@ export default {
 
     for(let i = 0; i < playerList.length; i++){
       console.log("playerList[i].playerId",playerList[i].playerId);
+      if((playerList[i].playerId) == getFromSessionStorage("player_id")){
+
+      setFromSessionStorage("team",playerList[i].team);
+
+      }
     }
     this.players = playerList.map(player => new Player(player.pseudo, player.team, 2,player.playerId));
+
 
     for(let i = 0; i < this.players.length; i++){
       console.log("Player :",i);
@@ -62,7 +68,7 @@ export default {
       console.log("this.players[i].team",this.players[i].team); 
     }
   });
-
+  
 
 
   
@@ -74,6 +80,9 @@ export default {
 
 
 },
+// beforeUnmount() {
+//   socket.off('playerListUpdate', (this.gameCode));
+//   },
 
 data() {
   return {
