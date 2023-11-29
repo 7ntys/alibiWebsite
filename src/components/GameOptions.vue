@@ -8,7 +8,7 @@
       <button class="leftButton" @click="increment">+</button>
     </div>
     <div class="gameMode" :style="gridStyle">
-      <option-card v-for="game in gameMode" :key="game.name" :game-name="game.name" :game-image="game.image" @voted="(value) => game.value = value"></option-card>
+      <option-card v-for="game in gameMode" :checked="game.value" :key="game.name" :game-name="game.name" :game-image="game.image" @voted="(value) => game.value = value"></option-card>
     </div>
     <div class="start">
       <button class="startButton" @click="startGame">Start Game</button>
@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import {updateGameSettings} from "../crude.js";
+import {getFromSessionStorage, updateGameSettings} from "../crude.js";
 import io from 'socket.io-client';
 import Notify from 'simple-notify'
 import 'simple-notify/dist/simple-notify.min.css'
@@ -28,7 +28,7 @@ import OptionCard from "@/components/OptionCard.vue";
 export default {
   name: "GameOptions",
   components: {OptionCard},
-  props: ["gameCode"],
+  props: ["gameCode","players"],
   computed:{
     gridStyle(){
       //Si < 680 width :
@@ -42,7 +42,7 @@ export default {
           gridTemplateRows: `repeat(${this.gameMode.length/4},${(this.gameMode.length/4)%100});`
         }
       }
-    }
+    },
   },
   data(){
     return{
@@ -55,20 +55,19 @@ export default {
           {name: "Vanish", value:false, image: require("../assets/Vanish Effect.png")},
           {name: "Fire",value:false, image: require("../assets/Fire Effect.png")}
       ],
-
+      gameMaster : false,
     }
   },
   methods:{
     async increment(){if (this.timer < 120) {this.timer += 10;await updateGameSettings(this.gameCode, [this.timer,null,null,null,null])}},
     async decrement(){if(this.timer > 10){this.timer -=10;await updateGameSettings(this.gameCode, [this.timer,null,null,null,null])}},
-    startGame(){
+    async startGame(){
       //Pass the timer to the Alibi Component :
-      if (this.checkTeam()) {
-        localStorage.setItem("Ink",this.gameMode[0].value)
-        localStorage.setItem("Tsunami",this.gameMode[1].value)
-        localStorage.setItem("Vanish",this.gameMode[2].value)
-        localStorage.setItem("Fire",this.gameMode[3].value)
-        this.$router.push({name: 'Alibi', params: {timerPassed: this.timer}})
+      let x = true;
+      if (x) { //this.checkTeam() && this.isGameMaster()
+
+        await updateGameSettings(this.gameCode, [null,null,null,null,null,true])
+        // this.$router.push({name: 'Alibi', params: {timerPassed: this.timer}})
       }else{
         alert("Teams are not balanced")
       }
@@ -104,7 +103,27 @@ export default {
     },
     checkTeam(){
       //TODO : Check if the the team are well balanced :
-      return true
+      let blue = 0;
+      let red = 0;
+      this.players.forEach(player => {
+        if (player.team === 1) {
+          blue++;
+        }
+        else if(player.team === 2){
+          red++;
+        }
+      });
+      if(red === 2 && blue === 2){
+        return true
+      }
+      else{
+        return false
+      }
+    },
+    isGameMaster(){
+      //TODO : Check if the player is the game master :
+      console.log(this.players[0].id)
+      return(this.players[0].id === getFromSessionStorage("player_id"))
     }
   },
   mounted() {
@@ -116,15 +135,30 @@ export default {
     socket.connect();
     socket.emit('GameSettings', (this.gameCode));
     console.log("Emitting GameSettings event to the server");
-
     socket.on('GameSettings', ({ gameSettings }) => {
       console.log("Nouvelle valeur de GameSettings en temps réel", gameSettings);
-
-      this.timer = gameSettings.alibiTime
+      console.log("Test avect tsunami "+gameSettings.vanish)
+      localStorage.setItem("Tsunami",gameSettings.tsunami);
+      localStorage.setItem("Ink",gameSettings.ink);
+      localStorage.setItem("Vanish",gameSettings.vanish);
+      localStorage.setItem("Fire",gameSettings.fire);
+      console.log(this.gameMode[0].value)
+      this.gameMode[0].value = gameSettings.ink;
+      this.gameMode[1].value = gameSettings.tsunami;
+      this.gameMode[2].value = gameSettings.vanish;
+      console.log(this.gameMode[2].value)
+      this.gameMode[3].value = gameSettings.fire;
+      this.timer = gameSettings.alibiTime;
+      if(gameSettings.started){
+        this.$router.push({name: 'Alibi', params: {timerPassed: this.timer}})
+      }
 
 
     });
-  }
+  },
+  // beforeUnmount() {
+  //   socket.off('GameSettings', (this.gameCode));
+  // }
 }
 </script>
 
@@ -177,8 +211,11 @@ button{
   font-size: 20px;
   border: solid rgba(149,62,64,1) 2px;
   box-shadow: black 0 0 10px;
-  cursor: pointer;
+  cursor: default;
   transition: 0.2s;
+}
+.ableToClick{
+  cursor: none;
 }
 .rightButton{
   border: 1px solid #fff;
@@ -208,7 +245,7 @@ button{
   /*Position the element at the bottom of the container : */
   transition: 0.2s;
 }
-.startButton:hover{
+.ableToClick:hover{
   transition: 0.2s;
   transform: scale(1.03);
 }

@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="gameOptions">
-      <GameOptions :game-code="gameCode"></GameOptions>
+      <GameOptions :game-code="gameCode" :players="players"></GameOptions>
     </div>
     <div class="playerProfile">
       <PlayerProfile v-for="player in players" :key="player.name" :playerGiven="player"></PlayerProfile>
@@ -22,7 +22,7 @@ class Player {
 }
 
 import PlayerProfile from "./PlayerProfile.vue"
-import {} from "../crude.js";
+import {getFromSessionStorage, setFromSessionStorage} from "../crude.js";
 import io from 'socket.io-client';
 export default {
   name: "LobbyComponent",
@@ -52,28 +52,45 @@ export default {
 
     for(let i = 0; i < playerList.length; i++){
       console.log("playerList[i].playerId",playerList[i].playerId);
-    }
-    this.players = playerList.map(player => new Player(player.pseudo, player.team, 2,player.playerId));
+      if((playerList[i].playerId) == getFromSessionStorage("player_id")){
 
-    for(let i = 0; i < this.players.length; i++){
-      console.log("Player :",i);
-      console.log("this.players[i].pseudo",this.players[i].name);
-      console.log("this.players[i].id",this.players[i].id);
-      console.log("this.players[i].team",this.players[i].team); 
+      setFromSessionStorage("team",playerList[i].team);
+
+      }
     }
+    this.players = playerList.map(player => new Player(player.pseudo, player.team, player.picture_index,player.playerId));
+
   });
 
 
+    // Event listener for reconnection attempts
+    socket.on('reconnect_attempt', (attemptNumber) => {
+    console.log(`Reconnect attempt ${attemptNumber}`);
+    // Retry sending the game code
+    socket.io.opts.query = { gameCode: this.gameCode };
+  });
+
+  // Event listener for disconnection
+  socket.on('disconnect', (reason) => {
+    console.log(`Disconnected. Reason: ${reason}`);
+  });
+
+  // Event listener for unsuccessful reconnection
+  socket.on('reconnect_failed', () => {
+    console.log('Reconnection failed. Retrying...');
+    // Retry connecting after a delay
+    setTimeout(() => {
+      socket.connect();
+    }, 2000); // You can adjust the delay as needed
+  });
 
   
-  // console.log("Listening to playerListUpdate event from the server");
-
-  //Listeners 2 for the Team Update
-  // Listen to the 'teamUpdate' event from the server
- 
 
 
 },
+// beforeUnmount() {
+//   socket.off('playerListUpdate', (this.gameCode));
+//   },
 
 data() {
   return {

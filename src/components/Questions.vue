@@ -6,6 +6,7 @@
 
 <script>
 import QuestionComponent from "@/components/QuestionComponent.vue";
+import {getFromSessionStorage, updatePlayerAnswers} from "../crude.js";
 export default {
   name: "QuestionsComponent",
   props: ["questions"],
@@ -14,21 +15,24 @@ export default {
   },
   data() {
     return {
-      answers: [],
+      answers: {},
       index: 0,
-      questionsArray: ["What was the name of your friend", "Where was the hidden treasure", "How did you manage to escape the jail","" +
-      "How did you steal the necklace","What was the famous dish of the restaurant"]
+      questionsArray: [getFromSessionStorage("question1"), getFromSessionStorage("question2"), getFromSessionStorage("question3"),
+      getFromSessionStorage("question4"),getFromSessionStorage("question5")]
     }
   },
   methods: {
-    receiveAnswer(event) {
+    async receiveAnswer(event) {
       console.log("Answer received : " + event)
       console.log("index : "+this.index)
-      this.answers+=event
+      this.answers[this.index.toString()] = event
+      console.log(this.answers)
       if (this.index < this.questionsArray.length - 1) {
         this.index += 1
       } else {
-        //TODO : Send the answers to the database and go to comparaison View
+        console.log("Trying to update with : "+this.answers);
+        //const array = {"1":"réponse1","2":"réponse2","3":"réponse3","4":"réponse4","5":"réponse5"};
+        await updatePlayerAnswers(getFromSessionStorage("game_id"),getFromSessionStorage("player_id"), this.answers);
         this.$router.push({name:'ComparaisonView'})
       }
     }

@@ -21,6 +21,7 @@ const port = 4002;
 const firebase = require('firebase/firestore');
 const { initializeApp } = require('firebase/app');
 const { getFirestore, collection, doc, setDoc, updateDoc, getDoc, onSnapshot,getDocs } = require('firebase/firestore');
+// const { getAlibibyTeam } = require('@/crude');
 
 
 const firebaseConfig = {
@@ -35,6 +36,7 @@ const firebaseConfig = {
 
 const fire_app = initializeApp(firebaseConfig);
 const db = getFirestore(fire_app);
+
 //End of Firebase init//
 
 //Firebase logic =>//
@@ -70,7 +72,8 @@ io.on('connection', (socket) => {
               const playerInfo = {
                 playerId: playerId,
                 pseudo: playerData.pseudo || '',
-                team: teamList[cpt] || 0
+                picture_index: playerData.picture_index || 0,
+                team: teamList[cpt]
               };
               playerInfoArray.push(playerInfo);
             }
@@ -113,6 +116,7 @@ io.on('connection', (socket) => {
         throw error;
       }
     });
+    
   
     // Clean up when the client disconnects
     socket.on('disconnect', () => {
@@ -120,6 +124,40 @@ io.on('connection', (socket) => {
       unsubscribe();
     });
   });
+
+  socket.on('playersAnswers', (gameId) => {
+    console.log('Client connected playersAnswers');
+
+    // Listen for changes to player_list and emit them to the client
+    const collectionRef = collection(db,'games');
+    const docRef = doc(collectionRef,gameId);
+
+    const unsubscribe = onSnapshot(docRef, async (doc) => {
+      try {
+        if (doc.exists) {
+          let answer = doc.data().answer;
+          
+          console.log ("Answer in the socket : "+answer);
+          answer = JSON.stringify(answer);
+          answer = JSON.parse(answer);
+          console.log("Answer in the socket 2 : "+answer);
+          socket.emit('playersAnswers', { answer: answer });
+        }
+      } catch (error) {
+        console.error('Error updating player answer:', error);
+        throw error;
+      }
+    });
+    
+  
+    // Clean up when the client disconnects
+    socket.on('disconnect', () => {
+      console.log('Client disconnected');
+      unsubscribe();
+    });
+  });
+
+  
    
 
 });
@@ -130,29 +168,18 @@ io.on('connection', (socket) => {
 
 
 
-async function startGame(enteredPseudonym,playerId,gameId) { //works
+async function startGame(enteredPseudonym,playerId,gameId,picture_index) { //works
 
       try {
-
-        console.log("Entered pseudonym:", enteredPseudonym);
-        await initializePlayerId(enteredPseudonym,playerId);
-  
-        console.log("Initialized player ID:", playerId);
-        console.log("Game ID SVP : "+gameId);
-        await createGameDocument(gameId);
-  
-        console.log('Game ID:', gameId);
-        console.log('Player ID:', playerId);
-  
+        await initializePlayerId(enteredPseudonym,playerId,picture_index);  
+        await createGameDocument(gameId);  
         await addPlayerToGame(gameId, playerId);
-  
-        console.log("Everything is fine");
-            } catch (error) { 
+              } catch (error) { 
         console.error(error);
       }
 }
     
-async function createPlayerDocument(pseudo, team, playerId) {
+async function createPlayerDocument(pseudo, picture_index, playerId) {
       try {
         // Assuming 'db' is your Firestore database reference
         const collectionRef = firebase.collection(db, "active_player");
@@ -160,7 +187,7 @@ async function createPlayerDocument(pseudo, team, playerId) {
     
         const playerData = {
           pseudo: pseudo,
-          team: team
+          picture_index: picture_index
         };
     
         await firebase.setDoc(documentRef, playerData);
@@ -176,14 +203,14 @@ async function createPlayerDocument(pseudo, team, playerId) {
     
 async function createGameDocument(gameId) { //works
     try {
-      console.log("Game IDDDDD :"+gameId);
       const documentRef = firebase.collection(db, "games");
       const newDocRef = firebase.doc(documentRef, gameId);
       const gameData = {
         player_list: [],
         team:[0,0,0,0],
         started: false,
-        gameSettings:{"alibiTime":60,"tsunami":"off","fire":"off","lamp":"off","hidden_chrono":"off"},
+        gameSettings:{"alibiTime":10,"tsunami":false,"fire":false,"vanish":false,"ink":false,"started":false},
+        answer:[{"0":"","1":"","2":"","3":"","4":""},{"0":"","1":"","2":"","3":"","4":""},{"0":"","1":"","2":"","3":"","4":""},{"0":"","1":"","2":"","3":"","4":""}],
         team1_alibi:await getRandomAlibi(),
         team2_alibi:await getRandomAlibi() 
         
@@ -217,7 +244,7 @@ async function createAlibiDocuments(alibis,nextId) {
     for (const alibi of alibis) {
       const newDocRef = firebase.doc(collectionRef, nextId.toString());
       await firebase.setDoc(newDocRef, alibi);
-      nextId++; // Incrémente l'ID pour le prochain alibi
+      nextId++; 
     }
 
     console.log('Alibi documents created successfully');
@@ -226,15 +253,8 @@ async function createAlibiDocuments(alibis,nextId) {
   }
 }
 
-
-
-
-
-
-
 async function getPlayerById(playerId) { //works
     try {
-        console.log("Player id :"+playerId);
         const playersCollection = firebase.collection(db,'active_player');
         const playerRef = firebase.doc(playersCollection,playerId); 
 
@@ -288,7 +308,48 @@ async function updatePlayerTeam(gameId, playerId, teamId) {
       }
   } catch (error) {
       console.error('Error updating player team:', error);
-      return null;
+      throw(error);
+  }
+}
+
+async function updatePlayerAnswers(gameId, playerId, player_answer) {
+  try {
+      console.log("player_answer : "+player_answer);
+      console.log("playerId : "+playerId);
+      console.log("gameId : "+gameId);
+      const gamesCollection = collection(db, 'games');
+      const gameRef = doc(gamesCollection, gameId);
+
+      const gameDoc = await getDoc(gameRef);
+
+      if (!gameDoc.exists()) {
+          console.log('Game document not found.');
+          return null;
+      }
+
+      const playerIds = gameDoc.data().player_list;
+      const answerList = gameDoc.data().answer;
+      console.log("PASSE");
+      console.log("playerIds : "+playerIds);
+      const playerIndex = playerIds.indexOf(playerId);
+      console.log("playerIndex : "+playerIndex);
+      if (playerIndex !== -1) {
+          // Update the teamId at the corresponding index in the teamList array
+          answerList[playerIndex] = player_answer;
+          console.log("answerList : "+answerList);
+
+          // Update the game document with the modified teamList
+          await updateDoc(gameRef, { answer: answerList }).then(() => {;
+
+          console.log('Update Players answers successfully.');
+          });
+      } else {
+          console.log('Player not found in the playerIds array.');
+          return null;
+      }
+  } catch (error) {
+      console.error('Error updating player answer:', error);
+      throw(error);
   }
 }
 
@@ -297,17 +358,21 @@ async function updateGameSettings(gameId,array) { //works
     const gamesCollection = firebase.collection(db,'games');
     const gameRef = firebase.doc(gamesCollection, gameId);
     const docSnapshot = await firebase.getDoc(gameRef);
-
+    console.log("array :",array);
     
 
     if (docSnapshot.exists()) {
       const gameData = docSnapshot.data().gameSettings;
+      console.log("gameData :",gameData);
 
       if(array[0] != null){gameData.alibiTime = array[0];}
-      if(array[1] != null){gameData.fire = array[1];}
-      if(array[2] != null){gameData.hidden_chrono = array[2];}
-      if(array[3] != null){gameData.lamp = array[3];}
-      if(array[4] != null){gameData.tsunami = array[4];}
+      if(array[1] != null){gameData.fire = array[1];console.log("Updating fire to ",array[1])}
+      if(array[2] != null){gameData.ink = array[2];console.log("Updating ink to ",array[2])}
+      if(array[3] != null){gameData.vanish = array[3];console.log("Updating vanish to ",array[3])}
+      if(array[4] != null){gameData.tsunami = array[4];console.log("Updating tsunami to ",array[4])}
+      if(array[5] != null){gameData.started = array[5];console.log("Updating started to ",array[5])}
+
+
 
 
       await updateDoc(gameRef, { gameSettings: gameData });
@@ -325,14 +390,12 @@ async function updateGameSettings(gameId,array) { //works
 async function addPlayerToGame(gameId, playerId) { //works
     try {
       const gamesCollection = firebase.collection(db,'games');
-      console.log("Intra-Game ID : "+gameId);
       const gameRef = firebase.doc(gamesCollection, gameId);
   
       // Fetch the game document
       const docSnapshot = await firebase.getDoc(gameRef);
       console.log("Result : ",docSnapshot.exists());
       if (docSnapshot.exists()) {
-        console.log("CA PASSE PUTAIN ");
         const gameData = docSnapshot.data();
   
         // Check if player_list exists or initialize it
@@ -361,10 +424,10 @@ async function addPlayerToGame(gameId, playerId) { //works
     }
 }
 
-async function initializePlayerId(enteredPseudonym,playerId) { //works
+async function initializePlayerId(enteredPseudonym,playerId, picture_index) { //works
   
       try {
-        await createPlayerDocument(enteredPseudonym, 0,playerId);
+        await createPlayerDocument(enteredPseudonym, picture_index,playerId);
   
   
         // Player document created successfully
@@ -403,7 +466,7 @@ async function getPlayerIDList(gameId) {
           const playerInfo = {
             playerId: playerId,
             pseudo: playerData.pseudo || '',
-            team: playerData.team || 0
+            picture_index: playerData.picture_index || 0
           };
           playerInfoArray.push(playerInfo);
         }
@@ -423,6 +486,66 @@ async function getPlayerIDList(gameId) {
     return null;
   }
   
+}
+
+async function getTeamList(gameId) {
+  try {
+      const gamesCollection = collection(db, 'games');
+      const gameRef = doc(gamesCollection, gameId);
+
+      const gameDoc = await getDoc(gameRef);
+
+      if (!gameDoc.exists()) {
+          console.log('Game document not found.');
+          return null;
+      }
+
+      let teamList = gameDoc.data().team;
+      console.log("teamList dd : "+teamList);
+
+      return teamList;
+  } catch (error) {
+      console.error('Error updating player team:', error);
+      throw(error);
+  }
+}
+
+async function getAlibibyTeam(gameId, teamId) {
+  try {
+    console.log("ça passe express");
+    console.log(" express gameId : " + gameId + " teamId : " + teamId);
+    const gamesCollection = firebase.collection(db, 'games');
+    const gameRef = firebase.doc(gamesCollection, gameId);
+
+    const doc = await firebase.getDoc(gameRef);
+    console.log("Reached this point");
+
+    if (doc.exists) {
+
+      let alibi_info = null;
+      console.log("alibi :",doc.data().team2_alibi);
+      if (teamId == 1) {
+        console.log("ça passe mdrr");
+        alibi_info = doc.data().team1_alibi;
+        console.log("ça passe mdrr 2");
+      }
+      else if (teamId == 2) {
+        console.log("ça passe mdrr 3");
+        alibi_info = doc.data().team2_alibi;
+        console.log("ça passe mdrr 4");
+      }
+
+      console.log("AlibiIds : " + alibi_info);
+
+      return alibi_info;
+    } else {
+      console.log('Game document not found.');
+      return null;
+    }
+  } catch (error) {
+    console.error('Error fetching game document:', error);
+    return null;
+  }
 }
 
 async function getRandomAlibi() {
@@ -460,10 +583,11 @@ async function getRandomAlibi() {
 
 //Express Post =>//
 
+
 app.post('/startGame', async (req, res) => {
   try {
-      const { enteredPseudonym, playerId, gameId } = req.body;
-      const result = await startGame(enteredPseudonym, playerId,gameId);
+      const { enteredPseudonym, playerId, gameId, picture_index } = req.body;
+      const result = await startGame(enteredPseudonym, playerId,gameId,picture_index);
       res.json({ playerId: result });
   } catch (error) {
       console.error('Error:', error);
@@ -521,6 +645,25 @@ app.get('/getPlayerById/:playerId', async (req, res) => {
     }
 });
 
+app.get('/getAlibibyTeam/:gameId/:teamId', async (req, res) => {
+  try {
+    const { gameId, teamId } = req.params;
+    console.log('Received request for getAlibibyTeam for team ', teamId);
+    const alibi_info = await getAlibibyTeam(gameId, teamId);
+
+    if (alibi_info) {
+      res.json({ alibi_info });
+    } else {
+      console.log('Alibi document not found for teamId:', teamId);
+      res.status(404).json({ error: 'Alibi document not found' });
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
 app.post('/addPlayerToGame/:gameId/:playerId', async (req, res) => {
     try {
         const { gameId, playerId } = req.params;
@@ -548,13 +691,45 @@ app.get('/getPlayerIDList/:gameId', async (req, res) => {
   }
 });
 
+app.get('/getTeamList/:gameId', async (req, res) => {
+  try {
+    const gameId = req.params.gameId;
+    console.log('Received request for gameId:', gameId);
+    const teamList = await getTeamList(gameId);
+
+    res.send(teamList);
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
 app.put('/updatePlayerTeam/:gameId/:playerId', async (req, res) => {
   try {
-    const { gameId,playerId } = req.params;
+    const { gameId, playerId } = req.params;
     const { teamId } = req.body;
 
-    await updatePlayerTeam(gameId,playerId,teamId);
-    } catch (error) {
+    await updatePlayerTeam(gameId, playerId, teamId);
+
+    // Move res.end() inside the try block to ensure it's called after the asynchronous operation
+    res.status(200).json({ success: true });
+  } catch (error) {
+    console.error('Error updating player team:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.put('/updatePlayerAnswers/:gameId/:playerId', async (req, res) => {
+  try {
+    const { gameId, playerId } = req.params;
+    const { answer } = req.body;
+
+    await updatePlayerAnswers(gameId, playerId, answer);
+
+    // Send a success response
+    res.json({ success: true });
+  } catch (error) {
     console.error('Error updating player team:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }

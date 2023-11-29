@@ -1,10 +1,10 @@
 <template>
   <div class="container">
     <div class="wrapper" v-if="turn === 0">
-      <ComparaisonCard v-for="item in team1" :key="item" :item="item"/>
+      <ComparaisonCard v-for="index in 5" :key="index" :player0="team1.firstPlayer" :player1="team1.secondPlayer" :answers0="team1.answers0[index-1]" :answers1="team1.answers1[index-1]" :question="team1.questions[index-1]" :vote="team1.vote[index-1]"/>
     </div>
     <div class="wrapper" v-else>
-      <ComparaisonCard v-for="item in team2" :key="item" :item="item"/>
+      <ComparaisonCard v-for="index in 5" :key="index" :player0="team2.firstPlayer" :player1="team2.secondPlayer" :answers0="team2.answers0[index-1]" :answers1="team2.answers1[index-1]" :question="team2.questions[index-1]"/>
     </div>
     <button class="submit" @click="submit()">
       Done
@@ -15,23 +15,87 @@
 <script>
 import ComparaisonCard from "@/components/ComparaisonCard.vue";
 
+import { getPlayerIDList, getTeamList, getFromSessionStorage} from "@/crude";
+import io from 'socket.io-client';
+
 export default {
   name:"ComparaisonView",
   components: {ComparaisonCard},
-  mounted() {
+  async mounted() {
+  console.log("THIS IS THE COMPARAISON VIEW");
+
+  const playerIdList = await getPlayerIDList(getFromSessionStorage("game_id"));
+  console.log("playerIdList",playerIdList);
+  const teamList =  await getTeamList(getFromSessionStorage("game_id"));
+  console.log("teamList de merde",teamList);
+ 
+  let all_info = {};
+
+  for (let i = 0; i < playerIdList.length; i++) {
+      const playerInfo = {
+          name: playerIdList[i].pseudo,
+          pictureIndex: playerIdList[i].picture_index,
+          team: teamList[i],
+          id: playerIdList[i].playerId,
+          answers: []
+      };
+      
+    all_info[`player${i + 1}`] = playerInfo;
+    if(playerInfo.team === 1){
+      if(this.team1.firstPlayer == null){this.team1.firstPlayer = playerInfo}
+      else{this.team1.secondPlayer = playerInfo}
+    }
+    else{
+      if(this.team2.firstPlayer == null){this.team2.firstPlayer = playerInfo}
+      else{this.team2.secondPlayer = playerInfo}
+    }
+  }
+
+
+  console.log("all_info",all_info);
+  const socket = io('http://localhost:4002', { transports: ['websocket'], debug: true });
+  socket.connect();
+  socket.emit('playersAnswers', (getFromSessionStorage("game_id")));
+  socket.on('playersAnswers', ({ answer }) => {
+  console.log("Nouvelle valeur de answer en temps réel : ", answer);
+    answer.forEach((data,index) => {
+      console.log("data",data);
+      console.log("index",index)
+      let player = all_info[`player${index + 1}`];
+      if(player.team === 1){
+        if(this.team1.answers0.length === 0){
+          for(let i=0;i<5;i++){
+            this.team1.answers0.push(data[i])
+          }
+        }
+        else{
+          for(let i=0;i<5;i++){
+            this.team1.answers1.push(data[i])
+          }
+        }
+      }
+      else {
+        if (this.team2.answers0 === 0) {
+          for(let i=0;i<5;i++){
+            this.team2.answers0.push(data[i])
+          }
+        } else {
+          for(let i=0;i<5;i++){
+            this.team2.answers1.push(data[i])
+          }
+        }
+      }
+    });
+    
+  });
+
     //TODO : Retrieve all answers and add a listener on it
   },
   data(){
-    return{
-      turn : 0,
-      team1 : [
-          { questions : "What was the name of your friend",answers0: "John",answers1: "Demacia",vote:3,firstPlayer:"Julien",secondPlayer:"Mathieu"},
-          { questions : "Where was the hidden treasure",answers0: "Paris",answers1: "Paris",vote:3,firstPlayer:"Julien",secondPlayer:"Mathieu"},
-          { questions : "How did you manage to escape the jail",answers0: "by the window",answers1: "using the window",vote:3,firstPlayer:"Julien",secondPlayer:"Mathieu"}],
-      team2 : [
-          { questions : "Where did you go",answers0: "The Bar",answers1: "To the bar",vote:3,firstPlayer:"Damien",secondPlayer:"Vianney"},
-          { questions : "Where was the hidden treasure",answers0: "Paris",answers1: "Paris",vote:3,firstPlayer:"Damien",secondPlayer:"Vianney"},
-          { questions : "How did you manage to escape the jail",answers0: "by the window",answers1: "using the window",vote:3,firstPlayer:"Damien",secondPlayer:"Vianney"}],
+    return {
+      turn: 0,
+      team1: {firstPlayer: null, secondPlayer: null, answers0: [], answers1: [], questions: [], vote: []},
+      team2: {firstPlayer: null, secondPlayer: null, answers0: [], answers1: [], questions: [], vote: []},
     }
   },
   methods:{
