@@ -128,7 +128,6 @@ export default {
       }
     },
     isGameMaster(){
-      console.log(this.players[0].id)
       return(this.players[0].id === getFromSessionStorage("player_id"))
     }
 
@@ -141,19 +140,14 @@ export default {
   
     socket.connect();
     socket.emit('GameSettings', (this.gameCode));
-    console.log("Emitting GameSettings event to the server");
     socket.on('GameSettings', ({ gameSettings }) => {
-      console.log("Nouvelle valeur de GameSettings en temps réel", gameSettings);
-      console.log("Test avect tsunami "+gameSettings.vanish)
       localStorage.setItem("Tsunami",gameSettings.tsunami);
       localStorage.setItem("Ink",gameSettings.ink);
       localStorage.setItem("Vanish",gameSettings.vanish);
       localStorage.setItem("Fire",gameSettings.fire);
-      console.log(this.gameMode[0].value)
       this.gameMode[0].value = gameSettings.ink;
       this.gameMode[1].value = gameSettings.tsunami;
       this.gameMode[2].value = gameSettings.vanish;
-      console.log(this.gameMode[2].value)
       this.gameMode[3].value = gameSettings.fire;
       this.timer = gameSettings.alibiTime;
       if(gameSettings.started){

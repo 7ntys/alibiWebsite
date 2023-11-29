@@ -28,7 +28,6 @@ export default {
   },
   methods:{
     changeTeam(){
-      console.log("something")
       if (getFromSessionStorage("player_id") === this.player.id) {
         this.player.team = this.player.team === 1 ? 2 : this.player.team === 2 ? 1 : 1
         //update to Db after change only if user didn't click for 1 second :
@@ -47,10 +46,8 @@ export default {
     },
     async CallDb(){
       try {
-        console.log("CalltoDb")
       //TODO : update to Db after change only if user didn't click for 1 second :
       await updatePlayerTeam(getFromSessionStorage("game_id"),getFromSessionStorage("player_id"),this.player.team);
-        console.log(this.player.team)
       } catch (error) {
         console.log(error);
       }

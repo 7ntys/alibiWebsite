@@ -38,12 +38,10 @@ export default {
       let x = true
       if(x){
         if (value === this.vote) {
-          console.log("reset")
           value = 2
           this.$emit('voteSubmitted', value)
         }
         else {
-          console.log(value)
           this.$emit('voteSubmitted', value)
         }
       }
@@ -60,7 +58,6 @@ export default {
       return (path)
     },
     isGameMaster(){
-      console.log(this.players[0].id)
       return(this.players[0].id === getFromSessionStorage("player_id"))
     }
   },

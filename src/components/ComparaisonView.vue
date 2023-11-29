@@ -29,12 +29,9 @@ export default {
   name:"ComparaisonView",
   components: {ComparaisonCard},
   async mounted() {
-  console.log("THIS IS THE COMPARAISON VIEW");
 
   const playerIdList = await getPlayerIDList(getFromSessionStorage("game_id"));
-  console.log("playerIdList",playerIdList);
   const teamList =  await getTeamList(getFromSessionStorage("game_id"));
-  console.log("teamList de merde",teamList);
   this.team1.questions = await getQuestionsbyTeam(getFromSessionStorage("game_id"),1);
   this.team2.questions = await getQuestionsbyTeam(getFromSessionStorage("game_id"),2);
  
@@ -62,7 +59,6 @@ export default {
   }
 
 
-  console.log("all_info",all_info);
   const socket = io('http://localhost:4002', { transports: ['websocket'], debug: true });
   socket.connect();
   
@@ -71,8 +67,6 @@ export default {
   console.log("Nouvelle valeur de answer en temps réel : ", answer);
     this.show = false
     answer.forEach((data,index) => {
-      console.log("data",data);
-      console.log("index",index)
       let player = all_info[`player${index + 1}`];
       if(player.team === 1){
         if(this.team1.answers0.length === 0 || this.team1.firstPlayer.id === player.id){
@@ -98,7 +92,6 @@ export default {
         }
       }
     });
-    console.log("truc machin",this.team1.answers0)
     this.show = true
     this.forceUpdate()
   });
@@ -108,17 +101,13 @@ export default {
   // await updateComparaisonList(getFromSessionStorage("game_id"),2,[null,null,null,1]);
   socket.emit('ComparaisonListeners', (getFromSessionStorage("game_id")));
   socket.on('ComparaisonListeners', ({ array }) => {
-  console.log("Nouvelle valeur de Comparaison Listeners en temps réel : ", array);
-    console.log("blanco de merde d'enculé",array)
     for(let i=0;i<5;i++){
       this.team1.vote[i] = (array[0][i])
       this.team2.vote[i] = (array[1][i])
-      console.log(this.team1.vote)
     }
   });
   socket.emit('SubmitandDoneListeners', (getFromSessionStorage("game_id")));
   socket.on('SubmitandDoneListeners', ({ check }) => {
-  console.log("Nouvelle valeur de Submit and Done Listeners en temps réel : ", check);
   if(check["done"] == true){
     this.turn++
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -168,11 +157,9 @@ export default {
       }
       let array = []
       if(this.turn === 0){
-        console.log("ca",this.team1.vote)
         this.team1.vote.forEach((value) => {
           array.push(value)
         })
-        console.log("CA 2 :",array)
         await updateComparaisonList(getFromSessionStorage("game_id"),this.turn+1,array)
       }
       else{
@@ -193,7 +180,6 @@ export default {
         await updateSubmitandDone(getFromSessionStorage("game_id"),[true,null])
         var teamScore = 0
         this.team1.vote.forEach((value) => {
-          console.log("value = ",value)
           if(value === 1){
             teamScore+=20
           }

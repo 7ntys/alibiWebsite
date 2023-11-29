@@ -41,14 +41,8 @@ export default {
   computed:{ 
   },
   async mounted() {
-    console.log("Alibi mounted ça passe ptn");
     let alibi_info = await getAlibibyTeam(getFromSessionStorage("game_id"),getFromSessionStorage("team"));
     alibi_info = alibi_info.alibi_info;
-    console.log("alibi info :",alibi_info);
-    console.log("OKOK");
-    console.log("Alibi Text:", alibi_info.text);
-    console.log("SVP");
-
     for(let i = 0; i<alibi_info.questions.length;i++){
       setFromSessionStorage("question"+i,alibi_info.questions[i]);
     }
@@ -93,7 +87,6 @@ export default {
     },
     generateRandomLocationStyle(){
       //TODO : Generate random location for the ink that fit into .container div :
-      console.log("generateRandomLocationStyle")
       const min = Math.ceil(10);
       const max = Math.floor(90);
       return {
@@ -114,7 +107,6 @@ export default {
       }
     },
     vanish(){
-      console.log("fait un truc")
       function encrypt(text, shift) {
         return text
             .split('')
