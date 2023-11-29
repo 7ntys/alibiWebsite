@@ -4,6 +4,9 @@ const app=express();
 app.use(cors());
 app.use(express.json());
 const http = require('http').Server(app);
+require('dotenv').config({ path: 'config.env' });
+
+
 const io = require('socket.io')(http, {
   cors: {
     origin: "*", 
@@ -13,7 +16,7 @@ const io = require('socket.io')(http, {
   debug:true
 });
 
-const port = 4002;
+const port = process.env.PORT;
 
 
 
@@ -25,13 +28,13 @@ const { getFirestore, collection, doc, setDoc, updateDoc, getDoc, onSnapshot,get
 
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBmvcgtjE3bgqDc7JxQZN0Rexynv7SFcQE",
-  authDomain: "getout-648d9.firebaseapp.com",
-  projectId: "getout-648d9",
-  storageBucket: "getout-648d9.appspot.com",
-  messagingSenderId: "747027428681",
-  appId: "1:747027428681:web:c4db7cd272c2a17c1ad698",
-  measurementId: "G-YQER5QETX1"
+  apiKey: process.env.API_KEY,
+  authDomain: process.env.AUTH_DOMAIN,
+  projectId: process.env.PROJECT_ID,
+  storageBucket: process.env.STORAGE_BUCKET,
+  messagingSenderId: process.env.MESSAGING_SENDER_ID,
+  appId: process.env.APP_ID,
+  measurementId: process.env.MEASUREMENT_ID
 };
 
 const fire_app = initializeApp(firebaseConfig);
@@ -191,6 +194,36 @@ io.on('connection', (socket) => {
   });
 
   
+  socket.on('SubmitandDoneListeners', (gameId) => {
+    console.log('Client connected Submit&DoneListeners');
+
+    // Listen for changes to player_list and emit them to the client
+    const collectionRef = collection(db,'games');
+    const docRef = doc(collectionRef,gameId);
+
+    const unsubscribe = onSnapshot(docRef, async (doc) => {
+      try {
+        if (doc.exists) {
+
+          let check = doc.data().check;   
+          console.log ("Submit & Done Listeners in the socket : "+check);
+          socket.emit('SubmitandDoneListeners', { check: check });
+        }
+      } catch (error) {
+        console.error('Error updating player list:', error);
+        throw error;
+      }
+    });
+    
+  
+    // Clean up when the client disconnects
+    socket.on('disconnect', () => {
+      console.log('Client disconnected');
+      unsubscribe();
+    });
+  });
+
+  
    
 
 });
@@ -246,9 +279,7 @@ async function createGameDocument(gameId) { //works
         answer:[{"0":"","1":"","2":"","3":"","4":""},{"0":"","1":"","2":"","3":"","4":""},{"0":"","1":"","2":"","3":"","4":""},{"0":"","1":"","2":"","3":"","4":""}],
         team1_answer:[2,2,2,2,2],
         team2_answer:[2,2,2,2,2],
-
-        
-
+        check:{"submit":false,"done":false},    
         team1_alibi:await getRandomAlibi(),
         team2_alibi:await getRandomAlibi() 
         
@@ -515,6 +546,29 @@ async function updateComparaisonList(gameId,teamId,array) { //works
   }
 }
 
+async function updateSubmitandDone(gameId,array) { //works
+  try {
+    const gamesCollection = firebase.collection(db,'games');
+    const gameRef = firebase.doc(gamesCollection, gameId);
+    const docSnapshot = await firebase.getDoc(gameRef);
+    console.log("array :",array);
+    
+
+    if (docSnapshot.exists()) {
+
+      let gameData = docSnapshot.data().check;
+      if(array[0] != null){gameData.submit = true;}
+      if(array[1] != null){gameData.done = true;}
+
+      await updateDoc(gameRef, { check: gameData });
+
+    }
+  } catch (error) {
+    console.error('Error fetching or updating game document:', error);
+  //   callback(error, null);
+  }
+}
+
 async function getPlayerIDList(gameId) {
 
   try {
@@ -605,7 +659,6 @@ async function getQuestionsbyTeam(gameId,teamId) {
       throw(error);
   }
 }
-
 
 async function getAlibibyTeam(gameId, teamId) {
   try {
@@ -778,7 +831,6 @@ app.get('/getQuestionsbyTeam/:gameId/:teamId', async (req, res) => {
   }
 });
 
-
 app.post('/addPlayerToGame/:gameId/:playerId', async (req, res) => {
     try {
         const { gameId, playerId } = req.params;
@@ -819,7 +871,6 @@ app.get('/getTeamList/:gameId', async (req, res) => {
   }
 });
 
-
 app.put('/updatePlayerTeam/:gameId/:playerId', async (req, res) => {
   try {
     const { gameId, playerId } = req.params;
@@ -834,6 +885,23 @@ app.put('/updatePlayerTeam/:gameId/:playerId', async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
+app.put('/updateSubmitandDone/:gameId', async (req, res) => {
+  try {
+    const { gameId } = req.params;
+    const { array } = req.body;
+
+    await updateSubmitandDone(gameId, array);
+
+
+    res.status(200).json({ success: true });
+  } catch (error) {
+    console.error('Error updating player team:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
 
 app.put('/updateComparaisonList/:gameId/:teamId', async (req, res) => {
   try {

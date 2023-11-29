@@ -14,7 +14,14 @@
 
 <script>
 import ComparaisonCard from "@/components/ComparaisonCard.vue";
-import {getPlayerIDList, getTeamList, getFromSessionStorage, getQuestionsbyTeam, updateComparaisonList} from "@/crude";
+import {
+  getPlayerIDList,
+  getTeamList,
+  getFromSessionStorage,
+  getQuestionsbyTeam,
+  updateComparaisonList,
+  updateSubmitandDone
+} from "@/crude";
 
 import io from 'socket.io-client';
 
@@ -100,16 +107,38 @@ export default {
   socket.emit('ComparaisonListeners', (getFromSessionStorage("game_id")));
   socket.on('ComparaisonListeners', ({ array }) => {
   console.log("Nouvelle valeur de Comparaison Listeners en temps réel : ", array);
-    console.log("noiro de merde d'enculé",array)
+    console.log("blanco de merde d'enculé",array)
     for(let i=0;i<5;i++){
       this.team1.vote[i] = (array[0][i])
       this.team2.vote[i] = (array[1][i])
       console.log(this.team1.vote)
     }
   });
-
-
-
+  socket.emit('SubmitandDoneListeners', (getFromSessionStorage("game_id")));
+  socket.on('SubmitandDoneListeners', ({ check }) => {
+  console.log("Nouvelle valeur de Submit and Done Listeners en temps réel : ", check);
+  if(check["done"] == true){
+    this.turn++
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  if(check["submit"] == true){
+    var teamScore = 0
+    this.team1.vote.forEach((value) => {
+      if(value === 1){
+        teamScore+=20
+      }
+    })
+    localStorage.setItem("teamScore1",teamScore)
+    teamScore = 0
+    this.team2.vote.forEach((value) => {
+      if(value === 1){
+        teamScore+=20
+      }
+    })
+    localStorage.setItem("teamScore2",teamScore)
+    this.$router.push({name:'Podium'})
+  }
+  });
 
     //TODO : Retrieve all answers and add a listener on it
   },
@@ -147,13 +176,15 @@ export default {
         await updateComparaisonList(getFromSessionStorage("game_id"),this.turn+1,array)
       }
     },
-    submit(){
+    async submit(){
       //TODO : Verify that all questions have been rated, then go send the result to the database and go to the next view
       if (this.turn === 0){
+        await updateSubmitandDone(getFromSessionStorage("game_id"),[null,true])
         this.turn++
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
       else{
+        await updateSubmitandDone(getFromSessionStorage("game_id"),[true,null])
         var teamScore = 0
         this.team1.vote.forEach((value) => {
           if(value === 1){
