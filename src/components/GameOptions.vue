@@ -70,13 +70,12 @@ export default {
     async decrement(){if(this.timer > 10){this.timer -=10;await updateGameSettings(this.gameCode, [this.timer,null,null,null,null])}},
     async startGame(){
       //Pass the timer to the Alibi Component :
-      let x = true;
-      if (x) { //this.checkTeam() && this.isGameMaster()
+      if (this.checkTeam() && this.isGameMaster()) { //this.checkTeam() && this.isGameMaster()
 
         await updateGameSettings(this.gameCode, [null,null,null,null,null,true])
         // this.$router.push({name: 'Alibi', params: {timerPassed: this.timer}})
       }else{
-        alert("Teams are not balanced")
+        alert("Teams are not balanced or you're less than 4 or you're not game Master")
       }
     },
     shareGame(){

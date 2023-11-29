@@ -109,7 +109,6 @@ export default {
   socket.emit('ComparaisonListeners', (getFromSessionStorage("game_id")));
   socket.on('ComparaisonListeners', ({ array }) => {
   console.log("Nouvelle valeur de Comparaison Listeners en temps réel : ", array);
-    console.log("blanco de merde d'enculé",array)
     for(let i=0;i<5;i++){
       this.team1.vote[i] = (array[0][i])
       this.team2.vote[i] = (array[1][i])
