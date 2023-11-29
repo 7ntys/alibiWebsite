@@ -187,6 +187,7 @@ export default {
         await updateSubmitandDone(getFromSessionStorage("game_id"),[true,null])
         var teamScore = 0
         this.team1.vote.forEach((value) => {
+          console.log("value = ",value)
           if(value === 1){
             teamScore+=20
           }
@@ -217,7 +218,7 @@ export default {
           }
         })
       }
-    }
+    },
   }
 }
 </script>

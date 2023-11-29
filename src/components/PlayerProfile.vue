@@ -66,6 +66,7 @@ export default {
   background: rgba(149,62,64,1);
   border-radius: 20px 20px 20px 20px;
   width: 100%;
+  max-height: 100%;
   box-shadow: black 0 0 10px;
   transition: 0.2s;
 }

@@ -136,17 +136,21 @@ methods: {
 </script>
 
 <style scoped>
+h1{
+  color:white;
+}
 .gameOptions{
   width: 50%;
-  margin: 5% 5%;
+  margin: 20px auto;
   border-right: 2px solid rgba(38,41,45,0.8);
 }
 .playerProfile{
   display: grid;
   grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
   grid-gap: 20px;
   width:30%;
-  margin: 5% 5%;
+  margin: 20px auto;
   transition: 0.2s;
 }
 .container{

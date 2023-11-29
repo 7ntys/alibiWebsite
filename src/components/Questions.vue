@@ -1,5 +1,6 @@
 <template>
   <div class="container">
+    <h1>Index : {{index}}</h1>
     <question-component v-if="index < 5" v-on:answerSubmitted="receiveAnswer($event)" :text="questionsArray[index]"></question-component>
   </div>
 </template>

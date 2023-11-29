@@ -20,6 +20,8 @@
   </div>
 </template>
 <script>
+import {getFromSessionStorage} from "@/crude";
+
 export default {
   name: 'ComparaisonCard',
   props: ["player0","player1","answers0","answers1","question","vote"],
@@ -33,14 +35,16 @@ export default {
   },
   methods:{
     Submitvote(value){
-      if (value === this.vote) {
-        console.log("reset")
-        value = 2
-        this.$emit('voteSubmitted', value)
-      }
-      else {
-        console.log(value)
-        this.$emit('voteSubmitted', value)
+      if(this.isGameMaster()){
+        if (value === this.vote) {
+          console.log("reset")
+          value = 2
+          this.$emit('voteSubmitted', value)
+        }
+        else {
+          console.log(value)
+          this.$emit('voteSubmitted', value)
+        }
       }
     },
     getPicture(player){
@@ -54,6 +58,10 @@ export default {
     getImageFromPath(path){
       return (path)
     },
+    isGameMaster(){
+      console.log(this.players[0].id)
+      return(this.players[0].id === getFromSessionStorage("player_id"))
+    }
   },
 
 }

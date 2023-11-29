@@ -31,6 +31,7 @@ export default {
       return Math.trunc(this.progressValue/20)
     },
     score : function (){
+      console.log("score",this.data.score)
       return this.data.score
     }
   },
@@ -45,7 +46,7 @@ export default {
         setTimeout(() => {
           this.incrementProgress(value)
         }, timeout);
-      }else if (value === this.maxScore){
+      }else if (value >= this.maxScore){
         confettiModule({
           particleCount: 800,
           spread: 200,
