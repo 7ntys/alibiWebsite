@@ -7,8 +7,8 @@
     <div class="progress-wrapper">
     <div class="progress-glass-panel">
       <div class="podium">
-        <ProgressBarComponent :data="data" :maxScore="maxScore"></ProgressBarComponent>
-        <ProgressBarComponent :data="data2" :maxScore="maxScore"></ProgressBarComponent>
+        <ProgressBarComponent :data="team1" :maxScore="maxScore"></ProgressBarComponent>
+        <ProgressBarComponent :data="team2" :maxScore="maxScore"></ProgressBarComponent>
       </div>
     </div>
     </div>
@@ -25,39 +25,42 @@ export default {
   },
   data() {
     return {
-      data : {
-        player1 : {
-          name : "Julien",
-          picture : require("../assets/profilePicture/picture1.png")
-        },
-        player2 : {
-          name : "Mathieu",
-          picture : require("../assets/profilePicture/picture2.png")
-        },
-        score : 100
-      },
-      data2 : {
-        player1 : {
-          name : "Damien",
-          picture : require("../assets/profilePicture/picture2.png")
-        },
-        player2 : {
-          name : "Vianney",
-          picture : require("../assets/profilePicture/picture3.png")
-        },
-        score : 80
-      }
+      team1:{firstPlayer:null,secondPlayer:null,score:0},
+      team2:{firstPlayer:null,secondPlayer:null,score:0}
     }
   },
   methods: {
     nextGame(){
       this.$router.push({path:"/"})
+    },
+    retrievePlayers(){
+      for (let i = 0; i < localStorage.length; i++) {
+        if (localStorage.key(i).includes("player")) {
+          const player = JSON.parse(localStorage.getItem(localStorage.key(i)));
+          if(player.team === 1){
+            if(this.team1.firstPlayer == null){this.team1.firstPlayer = player}
+            else{this.team1.secondPlayer = player}
+          }
+          else{
+            if(this.team2.firstPlayer == null){this.team2.firstPlayer = player}
+            else{this.team2.secondPlayer = player}
+          }
+        }
+      }
+    },
+    retrieveTeamScore(){
+      this.team1.score = localStorage.getItem("team1Score")
+      this.team2.score = localStorage.getItem("team2Score")
     }
   },
   computed: {
     maxScore: function () {
-      return this.data.score > this.data2.score ? this.data.score : this.data2.score
+      return this.team1.score > this.team2.score ? this.team1.score : this.team2.score
     }
+  },
+  mounted() {
+    this.retrievePlayers()
+    this.retrieveTeamScore()
   }
 }
 

@@ -4,7 +4,7 @@
       <ComparaisonCard @voteSubmitted="(value) => vote(1,index-1,value)" v-for="index in 5" :key="index" :player0="team1.firstPlayer" :player1="team1.secondPlayer" :answers0="team1.answers0[index-1]" :answers1="team1.answers1[index-1]" :question="team1.questions[index-1]" :vote="team1.vote[index-1]"/>
     </div>
     <div class="wrapper" v-else>
-      <ComparaisonCard @voteSubmitted="(value) => vote(1,index-1,value)" v-for="index in 5" :key="index" :player0="team2.firstPlayer" :player1="team2.secondPlayer" :answers0="team2.answers0[index-1]" :answers1="team2.answers1[index-1]" :question="team2.questions[index-1]" :vote="team2.vote[index-1]"/>
+      <ComparaisonCard @voteSubmitted="(value) => vote(2,index-1,value)" v-for="index in 5" :key="index" :player0="team2.firstPlayer" :player1="team2.secondPlayer" :answers0="team2.answers0[index-1]" :answers1="team2.answers1[index-1]" :question="team2.questions[index-1]" :vote="team2.vote[index-1]"/>
     </div>
     <button class="submit" @click="submit()">
       Done
@@ -43,6 +43,7 @@ export default {
       };
       
     all_info[`player${i + 1}`] = playerInfo;
+    localStorage.setItem(`player${i + 1}`, JSON.stringify(playerInfo));
     if(playerInfo.team === 1){
       if(this.team1.firstPlayer == null){this.team1.firstPlayer = playerInfo}
       else{this.team1.secondPlayer = playerInfo}
@@ -101,8 +102,8 @@ export default {
   console.log("Nouvelle valeur de Comparaison Listeners en temps réel : ", array);
     console.log("noiro de merde d'enculé",array)
     for(let i=0;i<5;i++){
-      this.team1.vote.push(array[0][i])
-      this.team2.vote.push(array[1][i])
+      this.team1.vote[i] = (array[0][i])
+      this.team2.vote[i] = (array[1][i])
       console.log(this.team1.vote)
     }
   });
@@ -137,10 +138,13 @@ export default {
           array.push(value)
         })
         console.log("CA 2 :",array)
-        await updateComparaisonList(getFromSessionStorage("game_id"),this.turn+1,this.team1.value)
+        await updateComparaisonList(getFromSessionStorage("game_id"),this.turn+1,array)
       }
       else{
-        await updateComparaisonList(getFromSessionStorage("game_id"),this.turn+1,this.team2.vote)
+        this.team2.vote.forEach((value) => {
+          array.push(value)
+        })
+        await updateComparaisonList(getFromSessionStorage("game_id"),this.turn+1,array)
       }
     },
     submit(){
@@ -150,7 +154,37 @@ export default {
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
       else{
+        var teamScore = 0
+        this.team1.vote.forEach((value) => {
+          if(value === 1){
+            teamScore+=20
+          }
+        })
+        localStorage.setItem("teamScore1",teamScore)
+        teamScore = 0
+        this.team2.vote.forEach((value) => {
+          if(value === 1){
+            teamScore+=20
+          }
+        })
+        localStorage.setItem("teamScore2",teamScore)
         this.$router.push({name:'Podium'})
+      }
+    },
+    verifyIfVoted(){
+      if(this.turn === 0){
+        this.team1.vote.forEach((value) => {
+          if(value === null){
+            return false
+          }
+        })
+      }
+      else{
+        this.team2.vote.forEach((value) => {
+          if(value === null){
+            return false
+          }
+        })
       }
     }
   }
