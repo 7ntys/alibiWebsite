@@ -1,10 +1,10 @@
 <template>
   <div class="container">
     <div class="wrapper" v-if="turn === 0">
-      <ComparaisonCard v-for="index in 5" :key="index" :player0="team1.firstPlayer" :player1="team1.secondPlayer" :answers0="team1.answers0[index-1]" :answers1="team1.answers1[index-1]" :question="team1.questions[index-1]" :vote="team1.vote[index-1]"/>
+      <ComparaisonCard @voteSubmitted="(value) => this.team1.vote[index-1] = value" v-for="index in 5" :key="index" :player0="team1.firstPlayer" :player1="team1.secondPlayer" :answers0="team1.answers0[index-1]" :answers1="team1.answers1[index-1]" :question="team1.questions[index-1]" :vote="team1.vote[index-1]"/>
     </div>
     <div class="wrapper" v-else>
-      <ComparaisonCard v-for="index in 5" :key="index" :player0="team2.firstPlayer" :player1="team2.secondPlayer" :answers0="team2.answers0[index-1]" :answers1="team2.answers1[index-1]" :question="team2.questions[index-1]"/>
+      <ComparaisonCard @voteSubmitted="(value) => this.team2.vote[index-1] = value" v-for="index in 5" :key="index" :player0="team2.firstPlayer" :player1="team2.secondPlayer" :answers0="team2.answers0[index-1]" :answers1="team2.answers1[index-1]" :question="team2.questions[index-1]" :vote="team2.vote[index-1]"/>
     </div>
     <button class="submit" @click="submit()">
       Done
@@ -119,8 +119,8 @@ export default {
   data(){
     return {
       turn: 0,
-      team1: {firstPlayer: null, secondPlayer: null, answers0: [], answers1: [], questions: [], vote: []},
-      team2: {firstPlayer: null, secondPlayer: null, answers0: [], answers1: [], questions: [], vote: []},
+      team1: {firstPlayer: null, secondPlayer: null, answers0: [], answers1: [], questions: [], vote: [0,0,0,0,0]},
+      team2: {firstPlayer: null, secondPlayer: null, answers0: [], answers1: [], questions: [], vote: [0,0,0,0,0]},
     }
   },
   methods:{
