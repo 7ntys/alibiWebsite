@@ -67,7 +67,7 @@ export default {
     socket.on('reconnect_attempt', (attemptNumber) => {
     console.log(`Reconnect attempt ${attemptNumber}`);
     // Retry sending the game code
-    socket.io.opts.query = { gameCode: gameCode };
+    socket.io.opts.query = { gameCode: this.gameCode };
   });
 
   // Event listener for disconnection
