@@ -1,12 +1,12 @@
 <template>
   <div class="container">
     <div class="profile">
-      <img :src="data.player1.picture">
-      <p>{{data.player1.name}}</p>
+      <img :src="getPicture(data.firstPlayer)">
+      <p>{{getName(data.secondPlayer)}}</p>
     </div>
     <div class="profile">
-      <img :src="data.player2.picture">
-      <p>{{data.player2.name}}</p>
+      <img :src="getPicture(data.secondPlayer)">
+      <p>{{getName(data.firstPlayer)}}</p>
     </div>
     <div class="progress">
       <progress max="100" :value="progressValue" :class="[progressValue > 40 ? 'mid' : 'low' , progressValue > 80 ? 'high' : 'low']"></progress>
@@ -23,6 +23,7 @@ export default {
   data() {
     return {
       progressValue:0,
+      pictures : [require("../assets/profilePicture/picture1.png"),require("../assets/profilePicture/picture2.png"),require("../assets/profilePicture/picture3.png"),require("../assets/profilePicture/picture4.png"),require("../assets/profilePicture/picture5.png"),require("../assets/profilePicture/picture6.png"),require("../assets/profilePicture/picture7.png"),require("../assets/profilePicture/picture8.png"),require("../assets/profilePicture/picture9.png"),require("../assets/profilePicture/picture10.png")],
     }
   },
   computed:{
@@ -51,7 +52,15 @@ export default {
           origin: { y: 0.6 }
         });
       }
-    }
+    },
+    getPicture(player){
+      if(player == null){return this.pictures[0]}
+      else{return this.pictures[player.pictureIndex-1]}
+    },
+    getName(player){
+      if(player == null){return "No name"}
+      else{return player.name}
+    },
   }
 }
 </script>
