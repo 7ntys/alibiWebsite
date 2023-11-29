@@ -2,7 +2,7 @@
   <div class="container circle">
     <h2>Your alibi :</h2>
     <h4>Time left : <span>{{timer}}</span> seconds</h4>
-    <p><span style="opacity: 0">{{firstWord}}</span><span style="color: red">{{words[0]}}</span> <span style="color: #ff843c">{{words[1]}}</span> <span style="color: yellow">{{words[2]}}</span> {{alibi}}</p>
+    <p class="alibiText"><span style="opacity: 0">{{firstWord}}</span><span style="color: red">{{words[0]}}</span> <span style="color: #ff843c">{{words[1]}}</span> <span style="color: yellow">{{words[2]}}</span> {{alibi}}</p>
     <div v-if="gameMode.tsunami === 'true'" class="wave" :class="{'waveBegin':beginAnim}"></div>
     <div v-if="gameMode.ink === 'true'" style="">
       <TransitionGroup name="fade">
@@ -187,6 +187,7 @@ export default {
 }
 p{
   transition: 0.3s;
+  font-family: Arial;
 }
 .circle {
   position: relative;
@@ -231,7 +232,7 @@ h4,h2 {
   padding: 0;
 }
 .container{
-  width: 50%;
+  width: 55%;
   margin: 0 auto;
   background: rgba(38,41,45,1);
   border-radius: 20px;
@@ -250,7 +251,13 @@ p{
   font-size: 20px;
   text-align: justify;
 }
-
+.alibiText{
+  padding: 0 15px;
+  font-size: 20px;
+  font-family: Arial;
+  text-align: justify;
+  line-height: 1.75;
+}
 @media only screen and (max-width: 600px) {
   .container,.circle{
     width: 95%;

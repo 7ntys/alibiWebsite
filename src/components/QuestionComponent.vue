@@ -1,6 +1,5 @@
 <template>
   <div class="container">
-    <h1>Timer : <span style="color:red">{{timer}}</span> seconds</h1>
     <h2>{{text}}</h2>
     <div class="inputContainer">
       <input type="text" v-model="answer" placeholder="Your answer" maxlength="60">
@@ -16,7 +15,7 @@ export default {
     return{
       answer : "",
       hoveringButton : false,
-      timer:5
+      timer:10
     }
   },
   methods:{
@@ -32,7 +31,7 @@ export default {
         }
         if(this.timer == 0){
           this.submitAnswer()
-          this.timer = 5
+          this.timer = 10
         }
       },1000)
     }
@@ -55,13 +54,13 @@ h1{
 }
 h2{
   color : white;
-  padding: 20px 0 10px 0;
+  padding: 20px 0 20px 0;
   margin: 0 auto;
 }
 .container{
   background: #2c3e50;
   box-shadow: black 0 0 10px;
-  width: 40%;
+  width: 50%;
   margin: 20px auto;
   resize: both;
   border:10px solid #232d3561;
@@ -77,6 +76,7 @@ input[type="text"]{
   font-size: 20px;
   padding: 10px;
   margin: 10px;
+  margin-bottom: 20px;
 }
 button{
   width: 70%;

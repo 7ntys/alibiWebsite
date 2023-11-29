@@ -1,6 +1,7 @@
 <template>
-  <div class="containerOptions">
+  <div class="containerOptions" v-if="show">
     <h2>Options of this game :</h2>
+    <h3 :class="[players.length < 4 ? 'waiting' : 'go']">Waiting for players : {{players.length}}/4</h3>
     <h3>{{gameCode}}</h3>
     <div class="timerOptions">
       <button class="rightButton" @click="decrement">-</button>
@@ -16,6 +17,9 @@
         <button class="shareButton" @click="shareGame">{{share}}</button>
       </div>
     </div>
+  </div>
+  <div v-else>
+    <h1 style="color: white;">The game starts in : {{tempTimer}} seconds</h1>
   </div>
 </template>
 
@@ -50,6 +54,8 @@ export default {
       timer: 60,
       copied: false,
       share: "Share",
+      tempTimer : 5,
+      show:true,
       gameMode:[
           {name: "Ink Splash", value:false, image: require("../assets/Ink effect.png")},
           {name: "Tsunami", value:false, image: require("../assets/Wave Effect.png")},
@@ -151,10 +157,18 @@ export default {
       this.gameMode[3].value = gameSettings.fire;
       this.timer = gameSettings.alibiTime;
       if(gameSettings.started){
-        this.$router.push({name: 'Alibi', params: {timerPassed: this.timer}})
+        this.show = false
+        //Create timer for 5 seconds :
+        setInterval(() => {
+          if(this.tempTimer > 0){
+            this.tempTimer -= 1
+          }
+          if (this.tempTimer === 0){
+            this.$router.push({name: 'Alibi', params: {timerPassed: this.timer}})
+            this.tempTimer = -1
+          }
+        }, 1000);
       }
-
-
     });
   },
   beforeUnmount() {
@@ -170,6 +184,12 @@ export default {
 </script>
 
 <style scoped>
+.waiting{
+  color:red;
+}
+.go{
+  color:green;
+}
 .gameMode{
   margin: 0 auto;
   margin-top: 10px;

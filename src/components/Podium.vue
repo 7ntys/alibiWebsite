@@ -6,7 +6,7 @@
     </div>
     <div class="progress-wrapper">
     <div class="progress-glass-panel">
-      <div class="podium">
+      <div class="podium" v-if="show">
         <ProgressBarComponent :data="team1" :maxScore="maxScore"></ProgressBarComponent>
         <ProgressBarComponent :data="team2" :maxScore="maxScore"></ProgressBarComponent>
       </div>
@@ -26,7 +26,8 @@ export default {
   data() {
     return {
       team1:{firstPlayer:null,secondPlayer:null,score:0},
-      team2:{firstPlayer:null,secondPlayer:null,score:0}
+      team2:{firstPlayer:null,secondPlayer:null,score:0},
+      show:false
     }
   },
   methods: {
@@ -49,18 +50,21 @@ export default {
       }
     },
     retrieveTeamScore(){
-      this.team1.score = localStorage.getItem("team1Score")
-      this.team2.score = localStorage.getItem("team2Score")
+      this.team1.score = localStorage.getItem("teamScore1")
+      this.team2.score = localStorage.getItem("teamScore2")
+      this.show = true
+      console.log("J'ai retrieve les data je vous jure wallah que ca marche",this.team1.score,this.team2.score)
     }
   },
   computed: {
     maxScore: function () {
-      return this.team1.score > this.team2.score ? this.team1.score : this.team2.score
+      console.log("maxScore",Math.max(this.team1.score,this.team2.score))
+      return Math.max(this.team1.score,this.team2.score)
     }
   },
   mounted() {
-    this.retrievePlayers()
     this.retrieveTeamScore()
+    this.retrievePlayers()
   }
 }
 

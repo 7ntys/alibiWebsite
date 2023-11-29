@@ -156,6 +156,7 @@ export default {
       else{
         var teamScore = 0
         this.team1.vote.forEach((value) => {
+          console.log("value = ",value)
           if(value === 1){
             teamScore+=20
           }
@@ -186,7 +187,7 @@ export default {
           }
         })
       }
-    }
+    },
   }
 }
 </script>
