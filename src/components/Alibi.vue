@@ -76,7 +76,7 @@ export default {
         if(this.timer > 0){
           this.timer -= 1
         }
-        if (this.timer == 0){
+        if (this.timer === 0){
           this.$router.push({name:'Questions'})
           this.timer = -1
         }

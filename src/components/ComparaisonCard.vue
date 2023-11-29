@@ -1,42 +1,63 @@
 <template>
   <div class="component">
-    <h2 class="question">{{item.questions}}</h2>
+    <h2 class="question">{{question}}</h2>
     <div class="answer">
       <div class="profile">
-        <img src="../assets/profilePicture/picture1.png">
-        <p class="username">{{item.firstPlayer}}</p>
+        <img :src="getImageFromPath(getPicture(player0))">
+        <p class="username">{{getName(player0)}}</p>
       </div>
       <div class="profile">
-        <img src="../assets/profilePicture/picture2.png">
-        <p class="username">{{ item.secondPlayer }}</p>
+        <img :src="getImageFromPath(getPicture(player1))">
+        <p class="username">{{getName(player1)}}</p>
       </div>
-      <p class="answer0">{{item.answers0}}</p>
-      <p class="answer1">{{item.answers1}}</p>
+      <p class="answer0">{{answers0}}</p>
+      <p class="answer1">{{answers1}}</p>
     </div>
     <div>
-      <button v-if="item.vote === 0 || item.vote === 3" @click="vote(0,item)"
-              :class="[item.vote === 0 ? 'dislikedAnim' : 'disliked']"><img src="../assets/Cross.png"></button>
-      <button v-if="item.vote === 1 || item.vote === 3" @click="vote(1,item)"
-              :class="[item.vote === 1 ? 'likedAnim' : 'liked']"><img src="../assets/Check.png"></button>
+      <button v-if="vote === 0 || vote === 3" @click="vote(0)"
+              :class="[vote === 0 ? 'dislikedAnim' : 'disliked']"><img src="../assets/Cross.png"></button>
+      <button v-if="vote === 1 || vote === 3" @click="Submitvote(1)"
+              :class="[vote === 1 ? 'likedAnim' : 'liked']"><img src="../assets/Check.png"></button>
     </div>
   </div>
 </template>
 <script>
 export default {
   name: 'ComparaisonCard',
-  props: ["item"],
+  props: ["player0","player1","answers0","answers1","question","vote"],
+  data(){
+    return{
+      pictures : [require("../assets/profilePicture/picture1.png"),require("../assets/profilePicture/picture2.png"),require("../assets/profilePicture/picture3.png"),require("../assets/profilePicture/picture4.png"),require("../assets/profilePicture/picture5.png"),require("../assets/profilePicture/picture6.png"),require("../assets/profilePicture/picture7.png"),require("../assets/profilePicture/picture8.png"),require("../assets/profilePicture/picture9.png"),require("../assets/profilePicture/picture10.png")],
+    }
+  },
+  computed:{
+
+  },
   methods:{
-    vote(value,question){
-      if (value === question.vote) {
+    Submitvote(value){
+      if (value === this.vote) {
         console.log("reset")
-        question.vote = 3
+        value = 3
+        this.$emit('voteSubmitted', value)
       }
       else {
-        question.vote = value
-        console.log(question)
+        console.log(value)
+        this.$emit('voteSubmitted', value)
       }
     },
-  }
+    getPicture(player){
+      if(player == null){return this.pictures[0]}
+      else{return  this.pictures[player.pictureIndex-1]}
+    },
+    getName(player){
+      if(player == null){return "No name"}
+      else{return player.name}
+    },
+    getImageFromPath(path){
+      return (path)
+    },
+  },
+
 }
 </script>
 <style scoped>
