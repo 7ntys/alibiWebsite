@@ -2,11 +2,11 @@
   <div class="container">
     <div class="profile">
       <img :src="getPicture(data.firstPlayer)">
-      <p>{{getName(data.secondPlayer)}}</p>
+      <p>{{getName(data.firstPlayer)}}</p>
     </div>
     <div class="profile">
       <img :src="getPicture(data.secondPlayer)">
-      <p>{{getName(data.firstPlayer)}}</p>
+      <p>{{getName(data.secondPlayer)}}</p>
     </div>
     <div class="progress">
       <progress max="100" :value="progressValue" :class="[progressValue > 40 ? 'mid' : 'low' , progressValue > 80 ? 'high' : 'low']"></progress>
