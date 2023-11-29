@@ -72,7 +72,7 @@ io.on('connection', (socket) => {
               const playerInfo = {
                 playerId: playerId,
                 pseudo: playerData.pseudo || '',
-                team: teamList[cpt] || 0
+                picture_index: playerData.picture_index || 0
               };
               playerInfoArray.push(playerInfo);
             }
@@ -167,10 +167,10 @@ io.on('connection', (socket) => {
 
 
 
-async function startGame(enteredPseudonym,playerId,gameId) { //works
+async function startGame(enteredPseudonym,playerId,gameId,picture_index) { //works
 
       try {
-        await initializePlayerId(enteredPseudonym,playerId);  
+        await initializePlayerId(enteredPseudonym,playerId,picture_index);  
         await createGameDocument(gameId);  
         await addPlayerToGame(gameId, playerId);
               } catch (error) { 
@@ -178,7 +178,7 @@ async function startGame(enteredPseudonym,playerId,gameId) { //works
       }
 }
     
-async function createPlayerDocument(pseudo, player_index, playerId) {
+async function createPlayerDocument(pseudo, picture_index, playerId) {
       try {
         // Assuming 'db' is your Firestore database reference
         const collectionRef = firebase.collection(db, "active_player");
@@ -186,7 +186,7 @@ async function createPlayerDocument(pseudo, player_index, playerId) {
     
         const playerData = {
           pseudo: pseudo,
-          player_index: player_index
+          picture_index: picture_index
         };
     
         await firebase.setDoc(documentRef, playerData);
@@ -423,10 +423,10 @@ async function addPlayerToGame(gameId, playerId) { //works
     }
 }
 
-async function initializePlayerId(enteredPseudonym,playerId) { //works
+async function initializePlayerId(enteredPseudonym,playerId, picture_index) { //works
   
       try {
-        await createPlayerDocument(enteredPseudonym, 0,playerId);
+        await createPlayerDocument(enteredPseudonym, picture_index,playerId);
   
   
         // Player document created successfully
@@ -585,8 +585,8 @@ async function getRandomAlibi() {
 
 app.post('/startGame', async (req, res) => {
   try {
-      const { enteredPseudonym, playerId, gameId } = req.body;
-      const result = await startGame(enteredPseudonym, playerId,gameId);
+      const { enteredPseudonym, playerId, gameId, picture_index } = req.body;
+      const result = await startGame(enteredPseudonym, playerId,gameId,picture_index);
       res.json({ playerId: result });
   } catch (error) {
       console.error('Error:', error);

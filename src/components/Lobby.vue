@@ -58,15 +58,16 @@ export default {
 
       }
     }
-    this.players = playerList.map(player => new Player(player.pseudo, player.team, 2,player.playerId));
+    this.players = playerList.map(player => new Player(player.pseudo, player.team, player.picture_index,player.playerId));
 
 
-    for(let i = 0; i < this.players.length; i++){
-      console.log("Player :",i);
-      console.log("this.players[i].pseudo",this.players[i].name);
-      console.log("this.players[i].id",this.players[i].id);
-      console.log("this.players[i].team",this.players[i].team); 
-    }
+    // for(let i = 0; i < this.players.length; i++){
+    //   console.log("Player :",i);
+    //   console.log("this.players[i].pseudo",this.players[i].name);
+    //   console.log("this.players[i].id",this.players[i].id);
+    //   console.log("this.players[i].team",this.players[i].team); 
+    // }
+
   });
   
 

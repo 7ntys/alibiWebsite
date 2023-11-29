@@ -89,9 +89,9 @@ export async function addPlayerToGame(gameId, playerId) {
   }
 }
 
-export async function startGame(enteredPseudonym, playerId, gameId) {
+export async function startGame(enteredPseudonym, playerId, gameId, picture_index) {
     try {
-        const response = await axios.post('http://localhost:4002/startGame', { enteredPseudonym, playerId, gameId });
+        const response = await axios.post('http://localhost:4002/startGame', { enteredPseudonym, playerId, gameId, picture_index });
         console.log(response.data);
         return response.data;
     } catch (error) {
