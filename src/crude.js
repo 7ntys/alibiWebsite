@@ -207,6 +207,20 @@ export async function updateComparaisonList(gameId, teamId,array) {
   }
 }
 
+export async function updateSubmitandDone(gameId,array) {
+  try {
+    const response = await axios.put(`${BACKEND_URL}:${PORT}/updateSubmitandDone/${gameId}`, { array });
+    console.log('Response Status:', response.status);
+    console.log('Response Data:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating comparaison list:', error);
+    throw error;
+  }
+}
+
+
+
 export async function createAlibiDocuments(alibis, nextId) {
   try {
     const response = await axios.post(`${BACKEND_URL}:${PORT}/createAlibiDocuments`, { alibis, nextId });

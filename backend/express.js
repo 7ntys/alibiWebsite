@@ -546,6 +546,29 @@ async function updateComparaisonList(gameId,teamId,array) { //works
   }
 }
 
+async function updateSubmitandDone(gameId,array) { //works
+  try {
+    const gamesCollection = firebase.collection(db,'games');
+    const gameRef = firebase.doc(gamesCollection, gameId);
+    const docSnapshot = await firebase.getDoc(gameRef);
+    console.log("array :",array);
+    
+
+    if (docSnapshot.exists()) {
+
+      let gameData = docSnapshot.data().check;
+      if(array[0] != null){gameData.check.submit = true;}
+      if(array[1] != null){gameData.check.done = true;}
+
+      await updateDoc(gameRef, { check: gameData });
+
+    }
+  } catch (error) {
+    console.error('Error fetching or updating game document:', error);
+  //   callback(error, null);
+  }
+}
+
 async function getPlayerIDList(gameId) {
 
   try {
@@ -636,7 +659,6 @@ async function getQuestionsbyTeam(gameId,teamId) {
       throw(error);
   }
 }
-
 
 async function getAlibibyTeam(gameId, teamId) {
   try {
@@ -809,7 +831,6 @@ app.get('/getQuestionsbyTeam/:gameId/:teamId', async (req, res) => {
   }
 });
 
-
 app.post('/addPlayerToGame/:gameId/:playerId', async (req, res) => {
     try {
         const { gameId, playerId } = req.params;
@@ -850,7 +871,6 @@ app.get('/getTeamList/:gameId', async (req, res) => {
   }
 });
 
-
 app.put('/updatePlayerTeam/:gameId/:playerId', async (req, res) => {
   try {
     const { gameId, playerId } = req.params;
@@ -865,6 +885,23 @@ app.put('/updatePlayerTeam/:gameId/:playerId', async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
+app.put('/updateSubmitandDone/:gameId', async (req, res) => {
+  try {
+    const { gameId } = req.params;
+    const { array } = req.body;
+
+    await updateSubmitandDone(gameId, array);
+
+
+    res.status(200).json({ success: true });
+  } catch (error) {
+    console.error('Error updating player team:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
 
 app.put('/updateComparaisonList/:gameId/:teamId', async (req, res) => {
   try {
