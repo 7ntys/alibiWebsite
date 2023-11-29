@@ -60,24 +60,31 @@ export default {
     }
     this.players = playerList.map(player => new Player(player.pseudo, player.team, player.picture_index,player.playerId));
 
-
-    // for(let i = 0; i < this.players.length; i++){
-    //   console.log("Player :",i);
-    //   console.log("this.players[i].pseudo",this.players[i].name);
-    //   console.log("this.players[i].id",this.players[i].id);
-    //   console.log("this.players[i].team",this.players[i].team); 
-    // }
-
   });
+
+
+    // Event listener for reconnection attempts
+    socket.on('reconnect_attempt', (attemptNumber) => {
+    console.log(`Reconnect attempt ${attemptNumber}`);
+    // Retry sending the game code
+    socket.io.opts.query = { gameCode: gameCode };
+  });
+
+  // Event listener for disconnection
+  socket.on('disconnect', (reason) => {
+    console.log(`Disconnected. Reason: ${reason}`);
+  });
+
+  // Event listener for unsuccessful reconnection
+  socket.on('reconnect_failed', () => {
+    console.log('Reconnection failed. Retrying...');
+    // Retry connecting after a delay
+    setTimeout(() => {
+      socket.connect();
+    }, 2000); // You can adjust the delay as needed
+  });
+
   
-
-
-  
-  // console.log("Listening to playerListUpdate event from the server");
-
-  //Listeners 2 for the Team Update
-  // Listen to the 'teamUpdate' event from the server
- 
 
 
 },

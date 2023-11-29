@@ -72,7 +72,8 @@ io.on('connection', (socket) => {
               const playerInfo = {
                 playerId: playerId,
                 pseudo: playerData.pseudo || '',
-                picture_index: playerData.picture_index || 0
+                picture_index: playerData.picture_index || 0,
+                team: teamList[cpt]
               };
               playerInfoArray.push(playerInfo);
             }
@@ -706,11 +707,14 @@ app.get('/getTeamList/:gameId', async (req, res) => {
 
 app.put('/updatePlayerTeam/:gameId/:playerId', async (req, res) => {
   try {
-    const { gameId,playerId } = req.params;
+    const { gameId, playerId } = req.params;
     const { teamId } = req.body;
 
-    await updatePlayerTeam(gameId,playerId,teamId);
-    } catch (error) {
+    await updatePlayerTeam(gameId, playerId, teamId);
+
+    // Move res.end() inside the try block to ensure it's called after the asynchronous operation
+    res.status(200).json({ success: true });
+  } catch (error) {
     console.error('Error updating player team:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }

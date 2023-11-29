@@ -90,7 +90,7 @@ export default {
         setFromSessionStorage("player_id",playerId); 
         setFromSessionStorage("game_id",gameId);
         console.log("playerId storage : " + getFromSessionStorage("player_id"));
-        await startGame(username,playerId,gameId,Math.floor(Math.random() * 6));
+        await startGame(username,playerId,gameId,this.profilePictureIndex+1);
         console.log("playerId : " + playerId);
         console.log('Game creatd');
         this.$router.push({name:'Lobby',params:{gameCode:gameId}});
@@ -109,7 +109,7 @@ export default {
     setFromSessionStorage("game_id",this.code);
     console.log("playerId storage 2 : " + getFromSessionStorage("player_id"));
     await Promise.all([
-    createPlayer(this.username, Math.floor(Math.random() * 6), playerId),
+    createPlayer(this.username, this.profilePictureIndex+1, playerId),
     addPlayerToGame(this.code, playerId),
     this.$router.push({name:'Lobby',params:{gameCode:this.code}})
   ]);

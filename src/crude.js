@@ -103,6 +103,9 @@ export async function startGame(enteredPseudonym, playerId, gameId, picture_inde
 export async function updatePlayerTeam(gameId, playerId, teamId) {
   let retries = 0;
   const MAX_RETRIES = 3;
+  const BASE_DELAY = 1000; // 1000 milliseconds (1 second)
+
+  console.log(`crude axios update playerteam: gameId: ${gameId}, playerId: ${playerId}, teamId: ${teamId}`);
 
   while (retries < MAX_RETRIES) {
     try {
@@ -118,8 +121,10 @@ export async function updatePlayerTeam(gameId, playerId, teamId) {
       console.error('Error updating player team:', error);
 
       if (axios.isCancel(error) || error.code === 'ECONNABORTED') {
-        // If the request was canceled or timed out, retry the request
-        console.log(`Retrying request (Attempt ${retries + 1})`);
+        // If the request was canceled or timed out, retry the request with exponential backoff
+        const delay = Math.pow(2, retries) * BASE_DELAY;
+        console.log(`Retrying request in ${delay / 1000} seconds (Attempt ${retries + 1})`);
+        await new Promise(resolve => setTimeout(resolve, delay));
         retries++;
       } else {
         // If it's another type of error, stop retrying and throw the error
