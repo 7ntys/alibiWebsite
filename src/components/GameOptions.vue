@@ -39,12 +39,12 @@ export default {
       //Si < 680 width :
       if(window.innerWidth < 600) {
         return {
-          gridTemplateRows : `repeat(${this.gameMode.length/2},${(this.gameMode.length / 2) % 100});`
+          gridTemplateRows : `repeat(${this.gameMode.length/2},${(this.gameMode.length / 2) % 100})`
         }
       }
       else{
         return{
-          gridTemplateRows: `repeat(${this.gameMode.length/4},${(this.gameMode.length/4)%100});`
+          gridTemplateRows: `repeat(${this.gameMode.length/4},${(this.gameMode.length/4)%100})`
         }
       }
     },
