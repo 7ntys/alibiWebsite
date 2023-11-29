@@ -33,7 +33,6 @@ export default {
     PlayerProfile
   },
   mounted() {
-  console.log("Mounted come");
 
   //Listeners 1 for playerList 
 
@@ -41,10 +40,8 @@ export default {
   socket.connect();
   
   // Emit the 'playerListUpdate' event to the server
-  console.log("GameCode : ",this.gameCode);
   socket.emit('playerListUpdate', (this.gameCode));
-  console.log("GameCode 2: ",this.gameCode);
-  console.log("Emitting playerListUpdate event to the server");
+
   
   socket.on('playerListUpdate', ({ playerList }) => {
     console.log("Nouvelle valeur de player_list en temps réel", playerList);
@@ -108,29 +105,7 @@ data() {
 methods: {
 
   },
-//   async retrievePlayerProfile() {
-//   try {
-//     // const temp = getPlayerIdFromSessionStorage();
-//     // if (temp == null) {
-//     //   this.$router.push({ name: 'Profile', params: { gameCode: this.gameCode } });
-//     // }
 
-//     // Retrieve the initial player list
-//     const playerList = await getPlayerIDList(this.gameCode);
-
-//     // Check if the player list has changed
-//     if (JSON.stringify(playerList) !== JSON.stringify(this.players)) {
-//       // Update your local players array
-//       this.players = playerList.map(player => new Player(player.pseudo, 3));
-//     }
-
-//     console.log("PlayerList retrieved from the server:", playerList);
-//     return playerList;  
-//   } catch (error) {
-//     console.error(error);
-//   }
-// },
-// },
 };
  
 </script>

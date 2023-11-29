@@ -82,16 +82,12 @@ export default {
       try {
         const gameId = generate_soft_ID();
         console.log("game_id : " + gameId);
-        console.log("username : " + username);
         let temp = getFromSessionStorage("player_id");
         if(temp == null){temp = generateId();}
         const playerId = temp;
-        console.log("player id init by function after : "+playerId);
         setFromSessionStorage("player_id",playerId); 
         setFromSessionStorage("game_id",gameId);
-        console.log("playerId storage : " + getFromSessionStorage("player_id"));
         await startGame(username,playerId,gameId,this.profilePictureIndex+1);
-        console.log("playerId : " + playerId);
         console.log('Game creatd');
         this.$router.push({name:'Lobby',params:{gameCode:gameId}});
       } catch (error) {
@@ -107,7 +103,6 @@ export default {
     const playerId = temp;
     setFromSessionStorage("player_id",playerId);
     setFromSessionStorage("game_id",this.code);
-    console.log("playerId storage 2 : " + getFromSessionStorage("player_id"));
     await Promise.all([
     createPlayer(this.username, this.profilePictureIndex+1, playerId),
     addPlayerToGame(this.code, playerId),

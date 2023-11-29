@@ -24,14 +24,11 @@ export default {
   },
   methods: {
     async receiveAnswer(event) {
-      console.log("Answer received : " + event)
-      console.log("index : "+this.index)
       this.answers[this.index.toString()] = event
       console.log(this.answers)
       if (this.index < this.questionsArray.length - 1) {
         this.index += 1
       } else {
-        console.log("Trying to update with : "+this.answers);
         //const array = {"1":"réponse1","2":"réponse2","3":"réponse3","4":"réponse4","5":"réponse5"};
         await updatePlayerAnswers(getFromSessionStorage("game_id"),getFromSessionStorage("player_id"), this.answers);
         this.$router.push({name:'ComparaisonView'})
