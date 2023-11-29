@@ -182,6 +182,18 @@ export async function updateGameSettings(gameId, array) {
   }
 }
 
+export async function updateComparaisonList(gameId, teamId,array) {
+  try {
+    const response = await axios.post(`http://localhost:4002/updateGameSettings/${gameId}/${teamId}`, { array });
+    console.log('Response Status:', response.status);
+    console.log('Response Data:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating comparaison list:', error);
+    throw error;
+  }
+}
+
 export async function createAlibiDocuments(alibis, nextId) {
   try {
     const response = await axios.post('http://localhost:3000/createAlibiDocuments', { alibis, nextId });

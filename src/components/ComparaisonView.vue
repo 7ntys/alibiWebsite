@@ -48,9 +48,25 @@ export default {
   socket.emit('playersAnswers', (getFromSessionStorage("game_id")));
   socket.on('playersAnswers', ({ answer }) => {
   console.log("Nouvelle valeur de answer en temps réel : ", answer);
+
+
     
     
   });
+
+  //Listeners Comparaison View
+
+  // await updateComparaisonList(getFromSessionStorage("game_id"),2,[null,null,null,1]);
+  socket.emit('ComparaisonListeners', (getFromSessionStorage("game_id")));
+  socket.on('ComparaisonListeners', ({ array }) => {
+  console.log("Nouvelle valeur de Comparaison Listeners en temps réel : ", array);
+  
+
+
+    
+    
+  });
+
   
     //TODO : Retrieve all answers and add a listener on it
   },
