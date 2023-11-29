@@ -100,12 +100,17 @@ export default {
   socket.emit('ComparaisonListeners', (getFromSessionStorage("game_id")));
   socket.on('ComparaisonListeners', ({ array }) => {
   console.log("Nouvelle valeur de Comparaison Listeners en temps réel : ", array);
-    console.log("noiro de merde d'enculé",array)
+    console.log("blanco de merde d'enculé",array)
     for(let i=0;i<5;i++){
       this.team1.vote[i] = (array[0][i])
       this.team2.vote[i] = (array[1][i])
       console.log(this.team1.vote)
     }
+  });
+  socket.emit('SubmitandDoneListeners', (getFromSessionStorage("game_id")));
+  socket.on('SubmitandDoneListeners', ({ check }) => {
+  console.log("Nouvelle valeur de Submit and Done Listeners en temps réel : ", check);
+
   });
 
 

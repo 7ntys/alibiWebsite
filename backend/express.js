@@ -191,6 +191,36 @@ io.on('connection', (socket) => {
   });
 
   
+  socket.on('SubmitandDoneListeners', (gameId) => {
+    console.log('Client connected Submit&DoneListeners');
+
+    // Listen for changes to player_list and emit them to the client
+    const collectionRef = collection(db,'games');
+    const docRef = doc(collectionRef,gameId);
+
+    const unsubscribe = onSnapshot(docRef, async (doc) => {
+      try {
+        if (doc.exists) {
+
+          let check = doc.data().check;   
+          console.log ("Submit & Done Listeners in the socket : "+check);
+          socket.emit('SubmitandDoneListeners', { check: check });
+        }
+      } catch (error) {
+        console.error('Error updating player list:', error);
+        throw error;
+      }
+    });
+    
+  
+    // Clean up when the client disconnects
+    socket.on('disconnect', () => {
+      console.log('Client disconnected');
+      unsubscribe();
+    });
+  });
+
+  
    
 
 });
@@ -246,9 +276,7 @@ async function createGameDocument(gameId) { //works
         answer:[{"0":"","1":"","2":"","3":"","4":""},{"0":"","1":"","2":"","3":"","4":""},{"0":"","1":"","2":"","3":"","4":""},{"0":"","1":"","2":"","3":"","4":""}],
         team1_answer:[2,2,2,2,2],
         team2_answer:[2,2,2,2,2],
-
-        
-
+        check:{"submit":false,"done":false},    
         team1_alibi:await getRandomAlibi(),
         team2_alibi:await getRandomAlibi() 
         
