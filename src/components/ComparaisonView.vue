@@ -179,12 +179,12 @@ export default {
     async submit(){
       //TODO : Verify that all questions have been rated, then go send the result to the database and go to the next view
       if (this.turn === 0){
-        await updateSubmitandDone(getFromSessionStorage("game_id"),[true,null])
+        await updateSubmitandDone(getFromSessionStorage("game_id"),[null,true])
         this.turn++
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
       else{
-        await updateSubmitandDone(getFromSessionStorage("game_id"),[null,true])
+        await updateSubmitandDone(getFromSessionStorage("game_id"),[true,null])
         var teamScore = 0
         this.team1.vote.forEach((value) => {
           if(value === 1){

@@ -557,8 +557,8 @@ async function updateSubmitandDone(gameId,array) { //works
     if (docSnapshot.exists()) {
 
       let gameData = docSnapshot.data().check;
-      if(array[0] != null){gameData.check.submit = true;}
-      if(array[1] != null){gameData.check.done = true;}
+      if(array[0] != null){gameData.submit = true;}
+      if(array[1] != null){gameData.done = true;}
 
       await updateDoc(gameRef, { check: gameData });
 
