@@ -14,8 +14,8 @@
 
 <script>
 import ComparaisonCard from "@/components/ComparaisonCard.vue";
+import { getPlayerIDList, getTeamList, getFromSessionStorage,getQuestionsbyTeam} from "@/crude";
 
-import { getPlayerIDList, getTeamList, getFromSessionStorage} from "@/crude";
 import io from 'socket.io-client';
 
 export default {
@@ -55,9 +55,33 @@ export default {
   console.log("all_info",all_info);
   const socket = io('http://localhost:4002', { transports: ['websocket'], debug: true });
   socket.connect();
+  
   socket.emit('playersAnswers', (getFromSessionStorage("game_id")));
   socket.on('playersAnswers', ({ answer }) => {
   console.log("Nouvelle valeur de answer en temps réel : ", answer);
+
+
+
+
+    
+    
+  });
+
+  //Listeners Comparaison View
+
+  // await updateComparaisonList(getFromSessionStorage("game_id"),2,[null,null,null,1]);
+  socket.emit('ComparaisonListeners', (getFromSessionStorage("game_id")));
+  socket.on('ComparaisonListeners', ({ array }) => {
+  console.log("Nouvelle valeur de Comparaison Listeners en temps réel : ", array);
+  
+
+
+    
+    
+  });
+
+  
+
     answer.forEach((data,index) => {
       console.log("data",data);
       console.log("index",index)
@@ -88,6 +112,7 @@ export default {
     });
     
   });
+
 
     //TODO : Retrieve all answers and add a listener on it
   },

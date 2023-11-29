@@ -157,6 +157,39 @@ io.on('connection', (socket) => {
     });
   });
 
+
+  socket.on('ComparaisonListeners', (gameId) => {
+    console.log('Client connected GameSettings');
+
+    // Listen for changes to player_list and emit them to the client
+    const collectionRef = collection(db,'games');
+    const docRef = doc(collectionRef,gameId);
+
+    const unsubscribe = onSnapshot(docRef, async (doc) => {
+      try {
+        if (doc.exists) {
+          let array = [];
+          array.push(doc.data().team1_answer); 
+          array.push(doc.data().team2_answer); 
+
+          
+          console.log ("ComparaisonListeners in the socket : "+array);
+          socket.emit('ComparaisonListeners', { array: array });
+        }
+      } catch (error) {
+        console.error('Error updating player list:', error);
+        throw error;
+      }
+    });
+    
+  
+    // Clean up when the client disconnects
+    socket.on('disconnect', () => {
+      console.log('Client disconnected');
+      unsubscribe();
+    });
+  });
+
   
    
 
@@ -208,9 +241,14 @@ async function createGameDocument(gameId) { //works
       const gameData = {
         player_list: [],
         team:[0,0,0,0],
-        started: false,
         gameSettings:{"alibiTime":10,"tsunami":false,"fire":false,"vanish":false,"ink":false,"started":false},
+
         answer:[{"0":"","1":"","2":"","3":"","4":""},{"0":"","1":"","2":"","3":"","4":""},{"0":"","1":"","2":"","3":"","4":""},{"0":"","1":"","2":"","3":"","4":""}],
+        team1_answer:[2,2,2,2],
+        team2_answer:[2,2,2,2],
+
+        
+
         team1_alibi:await getRandomAlibi(),
         team2_alibi:await getRandomAlibi() 
         
@@ -441,6 +479,42 @@ async function initializePlayerId(enteredPseudonym,playerId, picture_index) { //
       }
 }
 
+async function updateComparaisonList(gameId,teamId,array) { //works
+  try {
+    const gamesCollection = firebase.collection(db,'games');
+    const gameRef = firebase.doc(gamesCollection, gameId);
+    const docSnapshot = await firebase.getDoc(gameRef);
+    console.log("array :",array);
+    
+
+    if (docSnapshot.exists()) {
+
+      let gameData;
+      if(teamId == 1){gameData = docSnapshot.data().team1_answer;}
+      else if(teamId == 2){gameData = docSnapshot.data().team2_answer;}
+
+      for (let i = 0; i < array.length; i++) {
+        if(array[i] != null){
+        gameData[i] = array[i];
+        }
+      }
+
+      if     (teamId == 1){ await updateDoc(gameRef, { team1_answer: gameData });}
+      else if(teamId == 2){ await updateDoc(gameRef, { team2_answer: gameData });}
+
+
+
+
+      console.log('Comparaison List updated successfully.');
+
+      
+    }
+  } catch (error) {
+    console.error('Error fetching or updating game document:', error);
+  //   callback(error, null);
+  }
+}
+
 async function getPlayerIDList(gameId) {
 
   try {
@@ -509,6 +583,29 @@ async function getTeamList(gameId) {
       throw(error);
   }
 }
+
+async function getQuestionsbyTeam(gameId,teamId) {
+  try {
+      const gamesCollection = collection(db, 'games');
+      const gameRef = doc(gamesCollection, gameId);
+
+      const gameDoc = await getDoc(gameRef);
+
+      if (!gameDoc.exists()) {
+          console.log('Game document not found.');
+          return null;
+      }
+      let questionsList;
+      if(teamId == 1){questionsList = gameDoc.data().team1_alibi.questions;}
+      if(teamId == 2){questionsList = gameDoc.data().team2_alibi.questions;}
+
+      return questionsList;
+  } catch (error) {
+      console.error('Error updating player team:', error);
+      throw(error);
+  }
+}
+
 
 async function getAlibibyTeam(gameId, teamId) {
   try {
@@ -663,6 +760,24 @@ app.get('/getAlibibyTeam/:gameId/:teamId', async (req, res) => {
   }
 });
 
+app.get('/getQuestionsbyTeam/:gameId/:teamId', async (req, res) => {
+  try {
+    const { gameId, teamId } = req.params;
+    console.log('Received request for getQuestionsByTeam for team ', teamId);
+    const questionsList = await getQuestionsbyTeam(gameId, teamId);
+
+    if (questionsList) {
+      res.json({ questionsList });
+    } else {
+      console.log('Questions document not found for teamId:', teamId);
+      res.status(404).json({ error: 'Questions document not found' });
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 
 app.post('/addPlayerToGame/:gameId/:playerId', async (req, res) => {
     try {
@@ -719,6 +834,22 @@ app.put('/updatePlayerTeam/:gameId/:playerId', async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
+app.put('/updateComparaisonList/:gameId/:teamId', async (req, res) => {
+  try {
+    const { gameId, teamId } = req.params;
+    const { array } = req.body;
+
+    await updateComparaisonList(gameId, teamId, array);
+
+    // Move res.end() inside the try block to ensure it's called after the asynchronous operation
+    res.status(200).json({ success: true });
+  } catch (error) {
+    console.error('Error updating comparaison list:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 
 app.put('/updatePlayerAnswers/:gameId/:playerId', async (req, res) => {
   try {

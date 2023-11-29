@@ -22,6 +22,7 @@
 <script>
 import {getFromSessionStorage, updateGameSettings} from "../crude.js";
 import io from 'socket.io-client';
+const socket = io('http://localhost:4002', { transports: ['websocket'], debug: true });
 import Notify from 'simple-notify'
 import 'simple-notify/dist/simple-notify.min.css'
 import OptionCard from "@/components/OptionCard.vue";
@@ -121,17 +122,17 @@ export default {
       }
     },
     isGameMaster(){
-      //TODO : Check if the player is the game master :
       console.log(this.players[0].id)
       return(this.players[0].id === getFromSessionStorage("player_id"))
     }
+
   },
   mounted() {
     localStorage.setItem("Tsunami",false)
     localStorage.setItem("Ink",false)
     localStorage.setItem("Vanish",false)
     localStorage.setItem("Fire",false)
-    const socket = io('http://localhost:4002', { transports: ['websocket'], debug: true });
+  
     socket.connect();
     socket.emit('GameSettings', (this.gameCode));
     console.log("Emitting GameSettings event to the server");
@@ -155,6 +156,12 @@ export default {
 
 
     });
+  },
+  beforeUnmount() {
+
+    socket.off('GameSettings');
+    // Stop listening to GameSettings when the component is about to unmount
+    console.log("Disconnecting Listeners TAAAAH BOOOM (gameSettingsListener)");
   },
   // beforeUnmount() {
   //   socket.off('GameSettings', (this.gameCode));

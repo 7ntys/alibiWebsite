@@ -24,6 +24,7 @@ class Player {
 import PlayerProfile from "./PlayerProfile.vue"
 import {getFromSessionStorage, setFromSessionStorage} from "../crude.js";
 import io from 'socket.io-client';
+const socket = io('http://localhost:4002', { transports: ['websocket'], debug: true });
 export default {
   name: "LobbyComponent",
   props:["gameCode"],
@@ -36,7 +37,7 @@ export default {
 
   //Listeners 1 for playerList 
 
-  const socket = io('http://localhost:4002', { transports: ['websocket'], debug: true });
+ 
   socket.connect();
   
   // Emit the 'playerListUpdate' event to the server
@@ -88,9 +89,15 @@ export default {
 
 
 },
-// beforeUnmount() {
-//   socket.off('playerListUpdate', (this.gameCode));
-//   },
+
+
+beforeUnmount() {
+    // Stop listening to GameSettings when the component is about to unmount
+  socket.off('playerListUpdate');
+  socket.off('reconnect_attempt');
+  socket.off('disconnect');
+  socket.off('reconnect_failed');
+  },
 
 data() {
   return {
@@ -98,7 +105,9 @@ data() {
   };
 },
 
-methods: {}
+methods: {
+
+  },
 //   async retrievePlayerProfile() {
 //   try {
 //     // const temp = getPlayerIdFromSessionStorage();
