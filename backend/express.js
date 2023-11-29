@@ -4,6 +4,8 @@ const app=express();
 app.use(cors());
 app.use(express.json());
 const http = require('http').Server(app);
+require('dotenv').config({ path: 'config.env' });
+
 const io = require('socket.io')(http, {
   cors: {
     origin: "*", 
@@ -13,7 +15,7 @@ const io = require('socket.io')(http, {
   debug:true
 });
 
-const port = 4002;
+const port = process.env.PORT;
 
 
 
@@ -25,13 +27,13 @@ const { getFirestore, collection, doc, setDoc, updateDoc, getDoc, onSnapshot,get
 
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBmvcgtjE3bgqDc7JxQZN0Rexynv7SFcQE",
-  authDomain: "getout-648d9.firebaseapp.com",
-  projectId: "getout-648d9",
-  storageBucket: "getout-648d9.appspot.com",
-  messagingSenderId: "747027428681",
-  appId: "1:747027428681:web:c4db7cd272c2a17c1ad698",
-  measurementId: "G-YQER5QETX1"
+  apiKey: process.env.API_KEY,
+  authDomain: process.env.AUTH_DOMAIN,
+  projectId: process.env.PROJECT_ID,
+  storageBucket: process.env.STORAGE_BUCKET,
+  messagingSenderId: process.env.MESSAGING_SENDER_ID,
+  appId: process.env.APP_ID,
+  measurementId: process.env.MEASUREMENT_ID
 };
 
 const fire_app = initializeApp(firebaseConfig);

@@ -1,8 +1,10 @@
 import axios from 'axios';
+require('dotenv').config({ path: 'config.env' });
 // import io from 'socket.io-client';
 
 //Note : desfois l'ordre de placement des fonctions des crudes changent le fonctionnement du programme 
-
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost';
+const PORT = process.env.PORT || '4002';
 
 export async function getPlayerIDList(gameId) {
   try {
@@ -54,7 +56,7 @@ export async function createGameDocument(gameId) {
 
 export async function getPlayerById(playerId) {
     try {
-        const response = await axios.get(`http://localhost:4002/getPlayerById/${playerId}`);
+        const response = await axios.get(`${BACKEND_URL}:${PORT}/getPlayerById/${playerId}`);
         console.log("2443");
         console.log("response data"+response.data);  
         return response.data;
@@ -67,7 +69,7 @@ export async function getPlayerById(playerId) {
 export async function getAlibibyTeam(gameId, teamId) {
   try {
     console.log("crude axios gameId : " + gameId + " teamId : " + teamId);
-    const response = await axios.get(`http://localhost:4002/getAlibibyTeam/${gameId}/${teamId}`);
+    const response = await axios.get(`${BACKEND_URL}:${PORT}/getAlibibyTeam/${gameId}/${teamId}`);
     response.data = JSON.stringify(response.data);
     return JSON.parse(response.data);
   } catch (error) {
@@ -79,7 +81,7 @@ export async function getAlibibyTeam(gameId, teamId) {
 export async function getQuestionsbyTeam(gameId, teamId) {
   try {
     console.log("crude axios gameId : " + gameId + " teamId : " + teamId);
-    const response = await axios.get(`http://localhost:4002/getQuestionsbyTeam/${gameId}/${teamId}`);
+    const response = await axios.get(`${BACKEND_URL}:${PORT}/getQuestionsbyTeam/${gameId}/${teamId}`);
     response.data = JSON.stringify(response.data);
     return JSON.parse(response.data);
   } catch (error) {
@@ -103,7 +105,7 @@ export async function addPlayerToGame(gameId, playerId) {
 
 export async function startGame(enteredPseudonym, playerId, gameId, picture_index) {
     try {
-        const response = await axios.post('http://localhost:4002/startGame', { enteredPseudonym, playerId, gameId, picture_index });
+      const response = await axios.post(`${BACKEND_URL}:${PORT}/startGame`, { enteredPseudonym, playerId, gameId, picture_index });
         console.log(response.data);
         return response.data;
     } catch (error) {
@@ -121,7 +123,7 @@ export async function updatePlayerTeam(gameId, playerId, teamId) {
 
   while (retries < MAX_RETRIES) {
     try {
-      const response = await axios.put(`http://localhost:4002/updatePlayerTeam/${gameId}/${playerId}`, { teamId }, {
+      const response = await axios.put(`${BACKEND_URL}:${PORT}/updatePlayerTeam/${gameId}/${playerId}`, { teamId }, {
         timeout: 10000,
       });
 
@@ -156,7 +158,7 @@ export async function updatePlayerAnswers(gameId, playerId, answer) {
   while (retries < MAX_RETRIES) {
     try {
       console.log("crude axios gameId : " + gameId + " playerId : " + playerId + " answer : " + answer);
-      const response = await axios.put(`http://localhost:4002/updatePlayerAnswers/${gameId}/${playerId}`, { answer }, {
+      const response = await axios.put(`${BACKEND_URL}:${PORT}/updatePlayerAnswers/${gameId}/${playerId}`, { answer }, {
         timeout: 10000,
       });
       console.log('Response Status:', response.status);
@@ -196,7 +198,7 @@ export async function updateGameSettings(gameId, array) {
 
 export async function updateComparaisonList(gameId, teamId,array) {
   try {
-    const response = await axios.put(`http://localhost:4002/updateComparaisonList/${gameId}/${teamId}`, { array });
+    const response = await axios.put(`${BACKEND_URL}:${PORT}/updateComparaisonList/${gameId}/${teamId}`, { array });
     console.log('Response Status:', response.status);
     console.log('Response Data:', response.data);
     return response.data;
@@ -208,7 +210,7 @@ export async function updateComparaisonList(gameId, teamId,array) {
 
 export async function createAlibiDocuments(alibis, nextId) {
   try {
-    const response = await axios.post('http://localhost:3000/createAlibiDocuments', { alibis, nextId });
+    const response = await axios.post(`${BACKEND_URL}:${PORT}/createAlibiDocuments`, { alibis, nextId });
     console.log('Response Status:', response.status);
     console.log('Response Data:', response.data);
     return response.data;
