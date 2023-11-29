@@ -42,7 +42,7 @@ export default {
           gridTemplateRows: `repeat(${this.gameMode.length/4},${(this.gameMode.length/4)%100});`
         }
       }
-    }
+    },
   },
   data(){
     return{
@@ -55,7 +55,7 @@ export default {
           {name: "Vanish", value:false, image: require("../assets/Vanish Effect.png")},
           {name: "Fire",value:false, image: require("../assets/Fire Effect.png")}
       ],
-
+      gameMaster : false,
     }
   },
   methods:{
@@ -122,7 +122,8 @@ export default {
     },
     isGameMaster(){
       //TODO : Check if the player is the game master :
-      return (this.players[0].id === getFromSessionStorage("player_id"))
+      console.log(this.players[0].id)
+      return(this.players[0].id === getFromSessionStorage("player_id"))
     }
   },
   mounted() {
@@ -134,7 +135,6 @@ export default {
     socket.connect();
     socket.emit('GameSettings', (this.gameCode));
     console.log("Emitting GameSettings event to the server");
-
     socket.on('GameSettings', ({ gameSettings }) => {
       console.log("Nouvelle valeur de GameSettings en temps réel", gameSettings);
       console.log("Test avect tsunami "+gameSettings.vanish)
@@ -211,8 +211,11 @@ button{
   font-size: 20px;
   border: solid rgba(149,62,64,1) 2px;
   box-shadow: black 0 0 10px;
-  cursor: pointer;
+  cursor: default;
   transition: 0.2s;
+}
+.ableToClick{
+  cursor: none;
 }
 .rightButton{
   border: 1px solid #fff;
@@ -242,7 +245,7 @@ button{
   /*Position the element at the bottom of the container : */
   transition: 0.2s;
 }
-.startButton:hover{
+.ableToClick:hover{
   transition: 0.2s;
   transform: scale(1.03);
 }

@@ -210,7 +210,7 @@ async function createGameDocument(gameId) { //works
         team:[0,0,0,0],
         started: false,
         gameSettings:{"alibiTime":10,"tsunami":false,"fire":false,"vanish":false,"ink":false,"started":false},
-        answer:[null,null,null,null],
+        answer:[{"0":"","1":"","2":"","3":"","4":""},{"0":"","1":"","2":"","3":"","4":""},{"0":"","1":"","2":"","3":"","4":""},{"0":"","1":"","2":"","3":"","4":""}],
         team1_alibi:await getRandomAlibi(),
         team2_alibi:await getRandomAlibi() 
         
