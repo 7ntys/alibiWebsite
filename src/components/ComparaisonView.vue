@@ -14,7 +14,14 @@
 
 <script>
 import ComparaisonCard from "@/components/ComparaisonCard.vue";
-import {getPlayerIDList, getTeamList, getFromSessionStorage, getQuestionsbyTeam, updateComparaisonList} from "@/crude";
+import {
+  getPlayerIDList,
+  getTeamList,
+  getFromSessionStorage,
+  getQuestionsbyTeam,
+  updateComparaisonList,
+  updateSubmitandDone
+} from "@/crude";
 
 import io from 'socket.io-client';
 
@@ -169,13 +176,15 @@ export default {
         await updateComparaisonList(getFromSessionStorage("game_id"),this.turn+1,array)
       }
     },
-    submit(){
+    async submit(){
       //TODO : Verify that all questions have been rated, then go send the result to the database and go to the next view
       if (this.turn === 0){
+        await updateSubmitandDone(getFromSessionStorage("game_id"),[true,null])
         this.turn++
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
       else{
+        await updateSubmitandDone(getFromSessionStorage("game_id"),[null,true])
         var teamScore = 0
         this.team1.vote.forEach((value) => {
           if(value === 1){
