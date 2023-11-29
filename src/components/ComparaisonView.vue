@@ -110,11 +110,28 @@ export default {
   socket.emit('SubmitandDoneListeners', (getFromSessionStorage("game_id")));
   socket.on('SubmitandDoneListeners', ({ check }) => {
   console.log("Nouvelle valeur de Submit and Done Listeners en temps réel : ", check);
-
+  if(check["done"] == true){
+    this.turn++
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  if(check["submit"] == true){
+    var teamScore = 0
+    this.team1.vote.forEach((value) => {
+      if(value === 1){
+        teamScore+=20
+      }
+    })
+    localStorage.setItem("teamScore1",teamScore)
+    teamScore = 0
+    this.team2.vote.forEach((value) => {
+      if(value === 1){
+        teamScore+=20
+      }
+    })
+    localStorage.setItem("teamScore2",teamScore)
+    this.$router.push({name:'Podium'})
+  }
   });
-
-
-
 
     //TODO : Retrieve all answers and add a listener on it
   },
