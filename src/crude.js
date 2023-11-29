@@ -76,6 +76,18 @@ export async function getAlibibyTeam(gameId, teamId) {
   }
 }
 
+export async function getQuestionsbyTeam(gameId, teamId) {
+  try {
+    console.log("crude axios gameId : " + gameId + " teamId : " + teamId);
+    const response = await axios.get(`http://localhost:4002/getQuestionsbyTeam/${gameId}/${teamId}`);
+    response.data = JSON.stringify(response.data);
+    return JSON.parse(response.data);
+  } catch (error) {
+    console.error('Error:', error);
+    throw error;
+  }
+}
+
 
 export async function addPlayerToGame(gameId, playerId) {
   try {

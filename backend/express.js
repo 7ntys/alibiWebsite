@@ -580,6 +580,29 @@ async function getTeamList(gameId) {
   }
 }
 
+async function getQuestionsbyTeam(gameId,teamId) {
+  try {
+      const gamesCollection = collection(db, 'games');
+      const gameRef = doc(gamesCollection, gameId);
+
+      const gameDoc = await getDoc(gameRef);
+
+      if (!gameDoc.exists()) {
+          console.log('Game document not found.');
+          return null;
+      }
+      let questionsList;
+      if(teamId == 1){questionsList = gameDoc.data().team1_alibi.questions;}
+      if(teamId == 2){questionsList = gameDoc.data().team2_alibi.questions;}
+
+      return questionsList;
+  } catch (error) {
+      console.error('Error updating player team:', error);
+      throw(error);
+  }
+}
+
+
 async function getAlibibyTeam(gameId, teamId) {
   try {
     console.log("ça passe express");
@@ -726,6 +749,24 @@ app.get('/getAlibibyTeam/:gameId/:teamId', async (req, res) => {
     } else {
       console.log('Alibi document not found for teamId:', teamId);
       res.status(404).json({ error: 'Alibi document not found' });
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.get('/getQuestionsbyTeam/:gameId/:teamId', async (req, res) => {
+  try {
+    const { gameId, teamId } = req.params;
+    console.log('Received request for getQuestionsByTeam for team ', teamId);
+    const questionsList = await getQuestionsbyTeam(gameId, teamId);
+
+    if (questionsList) {
+      res.json({ questionsList });
+    } else {
+      console.log('Questions document not found for teamId:', teamId);
+      res.status(404).json({ error: 'Questions document not found' });
     }
   } catch (error) {
     console.error('Error:', error);
