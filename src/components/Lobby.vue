@@ -24,7 +24,7 @@ class Player {
 import PlayerProfile from "./PlayerProfile.vue"
 import {getFromSessionStorage, setFromSessionStorage} from "../crude.js";
 import io from 'socket.io-client';
-const socket = io('http://34.91.142.62:80', { transports: ['websocket'], debug: true });
+const socket = io('http://34.91.142.62:443', { transports: ['websocket'], debug: true });
 export default {
   name: "LobbyComponent",
   props:["gameCode"],
