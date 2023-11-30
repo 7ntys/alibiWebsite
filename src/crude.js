@@ -2,12 +2,12 @@ import axios from 'axios';
 // import io from 'socket.io-client';
 
 //Note : desfois l'ordre de placement des fonctions des crudes changent le fonctionnement du programme 
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost';
-const PORT = process.env.PORT || '4002';
-
+const BACKEND_URL = "http://34.91.142.62";
+const PORT = 80;
+console.log(PORT)
 export async function getPlayerIDList(gameId) {
   try {
-      const response = await axios.get(`http://localhost:4002/getPlayerIDList/${gameId}`);
+      const response = await axios.get(`${BACKEND_URL}:${PORT}/getPlayerIDList/${gameId}`);
       console.log('Response Status:', response.status);
       console.log('Response Data:', response.data);
       return response.data;
@@ -19,7 +19,7 @@ export async function getPlayerIDList(gameId) {
 
 export async function getTeamList(gameId) {
   try {
-      const response = await axios.get(`http://localhost:4002/getTeamList/${gameId}`);
+      const response = await axios.get(`${BACKEND_URL}:${PORT}/getTeamList/${gameId}`);
       console.log('Response Status:', response.status);
       console.log('Response Data:', response.data);
       return response.data;
@@ -31,7 +31,7 @@ export async function getTeamList(gameId) {
 
 export async function createPlayer(pseudo,team,playerId) {
     try {
-      const response = await axios.post('http://localhost:4002/createPlayer', {
+      const response = await axios.post(`${BACKEND_URL}:${PORT}/createPlayer`, {
         pseudo: pseudo,
         team: team,
         playerId : playerId
@@ -45,7 +45,7 @@ export async function createPlayer(pseudo,team,playerId) {
 
 export async function createGameDocument(gameId) {
     try {
-      const response = await axios.post('http://localhost:4002/createGameDocument', {gameId:gameId});
+      const response = await axios.post(`${BACKEND_URL}:${PORT}/createGameDocument`, {gameId:gameId});
       console.log(response.data);
     } catch (error) {
       console.error(error);
@@ -92,7 +92,7 @@ export async function getQuestionsbyTeam(gameId, teamId) {
 
 export async function addPlayerToGame(gameId, playerId) {
   try {
-    const response = await axios.post(`http://localhost:4002/addPlayerToGame/${gameId}/${playerId}`);
+    const response = await axios.post(`${BACKEND_URL}:${PORT}/addPlayerToGame/${gameId}/${playerId}`);
     console.log('Response Status:', response.status);
     console.log('Response Data:', response.data);
     return response.data;
@@ -185,7 +185,7 @@ export async function updatePlayerAnswers(gameId, playerId, answer) {
 
 export async function updateGameSettings(gameId, array) {
   try {
-    const response = await axios.post(`http://localhost:4002/updateGameSettings/${gameId}`, { array });
+    const response = await axios.post(`${BACKEND_URL}:${PORT}/updateGameSettings/${gameId}`, { array });
     console.log('Response Status:', response.status);
     console.log('Response Data:', response.data);
     return response.data;

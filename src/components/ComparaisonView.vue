@@ -63,7 +63,7 @@ export default {
 
 
   console.log("all_info",all_info);
-  const socket = io('http://localhost:4002', { transports: ['websocket'], debug: true });
+  const socket = io("http://34.91.142.62:80/", { transports: ['websocket'], debug: true });
   socket.connect();
   
   socket.emit('playersAnswers', (getFromSessionStorage("game_id")));

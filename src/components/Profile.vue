@@ -113,10 +113,6 @@ export default {
     addPlayerToGame(this.code, playerId),
     this.$router.push({name:'Lobby',params:{gameCode:this.code}})
   ]);
-
-
-    
-    
   } catch (error) {
     console.error(error);
   }

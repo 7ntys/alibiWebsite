@@ -26,7 +26,7 @@
 <script>
 import {getFromSessionStorage, updateGameSettings} from "../crude.js";
 import io from 'socket.io-client';
-const socket = io('http://localhost:4002', { transports: ['websocket'], debug: true });
+const socket = io('http://10.113.4.65:8080', { transports: ['websocket'], debug: true });
 import Notify from 'simple-notify'
 import 'simple-notify/dist/simple-notify.min.css'
 import OptionCard from "@/components/OptionCard.vue";
@@ -81,7 +81,7 @@ export default {
     shareGame(){
       if(this.copied){return}
       //Copy to clipboard an url
-      navigator.clipboard.writeText("http://localhost:8080/"+this.gameCode)
+      navigator.clipboard.writeText("http://34.91.142.62:80/"+this.gameCode)
       //Make sure the user can't spam the button :
       this.copied = true
       this.share = "Copied !"
