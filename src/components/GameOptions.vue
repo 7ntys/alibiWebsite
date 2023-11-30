@@ -26,7 +26,7 @@
 <script>
 import {getFromSessionStorage, updateGameSettings} from "../crude.js";
 import io from 'socket.io-client';
-const socket = io('http://34.91.142.62:443', { transports: ['websocket'], debug: true });
+const socket = io('https://34.91.142.62:443', { transports: ['websocket'], debug: true });
 import Notify from 'simple-notify'
 import 'simple-notify/dist/simple-notify.min.css'
 import OptionCard from "@/components/OptionCard.vue";

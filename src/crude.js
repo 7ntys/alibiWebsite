@@ -2,7 +2,7 @@ import axios from 'axios';
 // import io from 'socket.io-client';
 
 //Note : desfois l'ordre de placement des fonctions des crudes changent le fonctionnement du programme 
-const BACKEND_URL = "http://34.91.142.62";
+const BACKEND_URL = "https://34.91.142.62";
 const PORT = 443;
 console.log(PORT)
 export async function getPlayerIDList(gameId) {

@@ -3,7 +3,7 @@ const cors = require('cors')
 const app=express();
 app.use(cors());
 app.use(express.json());
-const http = require('http').Server(app);
+const http = require('https').Server(app);
 require('dotenv').config({ path: 'config.env' });
 
 
