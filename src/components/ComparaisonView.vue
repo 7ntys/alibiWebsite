@@ -63,7 +63,7 @@ export default {
 
 
   console.log("all_info",all_info);
-  const socket = io("https://34.91.142.62:443/", { transports: ['websocket'], debug: true });
+  const socket = io("http://34.91.142.62:80/", { transports: ['websocket'], debug: true });
   socket.connect();
   
   socket.emit('playersAnswers', (getFromSessionStorage("game_id")));
