@@ -3,6 +3,13 @@ const cors = require('cors')
 const app=express();
 app.use(cors());
 app.use(express.json());
+const https = require("https");
+const fs = require('fs');
+const options = {
+    cert: fs.readFileSync('/etc/letsencrypt/live/alibis.games/fullchain.pem'),
+    key: fs.readFileSync('/etc/letsencrypt/live/domain-or-subdomain/privkey.pem')
+};
+https.createServer(options, app).listen(443);
 const http = require('http').Server(app);
 require('dotenv').config({ path: 'config.env' });
 
