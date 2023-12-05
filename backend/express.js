@@ -10,11 +10,11 @@ const options = {
     key: fs.readFileSync('/etc/letsencrypt/live/alibis.games/privkey.pem')
 };
 https.createServer(options, app).listen(443);
-const http = require('http').Server(app);
+//const http = require('http').Server(app);
 require('dotenv').config({ path: 'config.env' });
 
 
-const io = require('socket.io')(http, {
+const io = require('socket.io')(https, {
   cors: {
     origin: "*", 
     methods: ["GET", "POST","PUT"]
