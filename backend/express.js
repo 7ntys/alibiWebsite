@@ -9,7 +9,7 @@ const options = {
     cert: fs.readFileSync('/etc/letsencrypt/live/alibis.games/fullchain.pem'),
     key: fs.readFileSync('/etc/letsencrypt/live/alibis.games/privkey.pem')
 };
-https.createServer(options, app).listen(443);
+https.createServer(options, app).listen(443,()=>console.log("Alibi server is running on port "+443));
 //const http = require('http').Server(app);
 require('dotenv').config({ path: 'config.env' });
 
