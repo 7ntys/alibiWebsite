@@ -7,7 +7,7 @@ const https = require("https");
 const fs = require('fs');
 const options = {
     cert: fs.readFileSync('/etc/letsencrypt/live/alibis.games/fullchain.pem'),
-    key: fs.readFileSync('/etc/letsencrypt/live/domain-or-subdomain/privkey.pem')
+    key: fs.readFileSync('/etc/letsencrypt/live/alibis.games/privkey.pem')
 };
 https.createServer(options, app).listen(443);
 const http = require('http').Server(app);
