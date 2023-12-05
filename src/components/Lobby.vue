@@ -20,7 +20,6 @@ class Player {
     this.id = id;
   }
 }
-
 import PlayerProfile from "./PlayerProfile.vue"
 import {getFromSessionStorage, setFromSessionStorage} from "../crude.js";
 import io from 'socket.io-client';
