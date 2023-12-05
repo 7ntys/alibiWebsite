@@ -976,7 +976,7 @@ app.post('/createAlibiDocuments', async (req, res) => {
 
 
 
-https.listen(port,()=>console.log("Alibi server is running on port "+port));
+//http.listen(port,()=>console.log("Alibi server is running on port "+port));
 
 
 //End of Express Post//
